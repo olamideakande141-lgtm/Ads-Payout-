@@ -11,38 +11,65 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const MY_CHANNEL = process.env.CHANNEL || '@freeearningofusdt';
+const BOT_USERNAME = process.env.BOT_USERNAME || 'Realads01_bot'; // FIXED BOT
+const MINI_APP_URL = process.env.MINI_APP_URL || 'https://ads-payout-1.onrender.com';
+
 let bot;
 if(BOT_TOKEN){
   bot = new Telegraf(BOT_TOKEN);
-  const MINI_APP_URL = process.env.MINI_APP_URL || 'https://ads-payout-1.onrender.com';
   bot.telegram.deleteWebhook({drop_pending_updates: true}).then(()=>console.log('Old webhook deleted')).catch(()=>{});
   bot.start((ctx)=>{
-    const refId = ctx.startPayload; // referral id from t.me/bot?start=REFID
-    if(refId){
-      try{
-        if(!fs.existsSync('./data.json')) fs.writeFileSync('./data.json','{}');
-        let tempUsers = JSON.parse(fs.readFileSync('./data.json'));
-        const uid = String(ctx.from.id);
-        if(!tempUsers[uid]) tempUsers[uid] = {balance:0,tasksCompleted:[],referralCount:0,ad1Count:0,ad1Date:'',ad2Count:0,ad2Date:'',ad3Count:0,ad3Date:'',referrals:[],referralEarnings:0,referredBy:refId,completedDays:[]};
-        else if(!tempUsers[uid].referredBy && refId!==uid){
+    const refId = ctx.startPayload;
+    const tgUser = ctx.from;
+    const tgUsername = tgUser.username ? '@'+tgUser.username : '';
+    const tgFirstName = tgUser.first_name || '';
+    try{
+      if(!fs.existsSync('./data.json')) fs.writeFileSync('./data.json','{}');
+      let tempUsers = JSON.parse(fs.readFileSync('./data.json'));
+      const uid = String(tgUser.id);
+      if(!tempUsers[uid]) {
+        tempUsers[uid] = {
+          balance:0,tasksCompleted:[],referralCount:0,
+          ad1Count:0,ad1Date:'',ad2Count:0,ad2Date:'',ad3Count:0,ad3Date:'',
+          referrals:[],referralEarnings:0,referredBy:refId||'',completedDays:[],
+          username:tgUsername, firstName:tgFirstName, telegramId:uid,
+          referralLink:`https://t.me/${BOT_USERNAME}?start=${uid}`
+        };
+      } else {
+        // AUTO UPDATE USERNAME
+        tempUsers[uid].username = tgUsername || tempUsers[uid].username;
+        tempUsers[uid].firstName = tgFirstName || tempUsers[uid].firstName;
+        tempUsers[uid].telegramId = uid;
+        tempUsers[uid].referralLink = `https://t.me/${BOT_USERNAME}?start=${uid}`;
+        if(!tempUsers[uid].referredBy && refId && refId!==uid){
           tempUsers[uid].referredBy = refId;
         }
-        // Add to referrer tracking
-        if(refId!==uid){
-          if(!tempUsers[refId]) tempUsers[refId] = {balance:0,tasksCompleted:[],referralCount:0,ad1Count:0,ad1Date:'',ad2Count:0,ad2Date:'',ad3Count:0,ad3Date:'',referrals:[],referralEarnings:0,completedDays:[],referralLink:`https://t.me/${process.env.BOT_USERNAME||'AdsPayoutBot'}?start=${refId}`};
-          if(!tempUsers[refId].referrals) tempUsers[refId].referrals=[];
-          if(!tempUsers[refId].referrals.find(r=>r.id===uid)){
-            tempUsers[refId].referrals.push({id:uid, username:ctx.from.username||'', day1Complete:false, day1Date:'', day2Complete:false, day2Date:'', valid:false, date:new Date().toISOString()});
-          }
+      }
+      if(refId && refId!==uid){
+        if(!tempUsers[refId]) tempUsers[refId] = {
+          balance:0,tasksCompleted:[],referralCount:0,ad1Count:0,ad1Date:'',ad2Count:0,ad2Date:'',ad3Count:0,ad3Date:'',referrals:[],referralEarnings:0,completedDays:[],
+          referralLink:`https://t.me/${BOT_USERNAME}?start=${refId}`
+        };
+        if(!tempUsers[refId].referrals) tempUsers[refId].referrals=[];
+        if(!tempUsers[refId].referrals.find(r=>r.id===uid)){
+          tempUsers[refId].referrals.push({
+            id:uid, username:tgUsername || tgUser.first_name || '', 
+            firstName:tgFirstName,
+            day1Complete:false, day1Date:'', day2Complete:false, day2Date:'', valid:false, 
+            date:new Date().toISOString()
+          });
         }
-        fs.writeFileSync('./data.json', JSON.stringify(tempUsers));
-      }catch(e){console.log(e)}
-    }
+      }
+      fs.writeFileSync('./data.json', JSON.stringify(tempUsers));
+    }catch(e){console.log(e)}
 
-    const txt=`What can this bot do?\n\n💎 Why USDT Earn is Different\n\nMany bots promise to pay, but they don't.\nMany say 24 hours, but you wait forever.\n\nWe are different.\n\n⚡ At USDT Earn, withdrawals arrive in MINUTES.\n💰 Real USDT - TRC20 / BEP20\n✅ No delays, no stories\n\nMinimum: $5 USDT (20% fee)\nYou withdraw $5 → Get $4 in 1 minute!\n\nReferral: Earn $0.025 per valid referral\nValid = referral completes ALL ads (20+15+20) for 2 days\n\nPlease:\n🙏 No fake referrals\n🙏 Complete 20 tasks daily\n🙏 Stay active ${MY_CHANNEL}\n\nReal users = Fast payments. Always`;
-    ctx.reply(txt, Markup.inlineKeyboard([[Markup.button.webApp('🚀 Launch Mini App', MINI_APP_URL)], [Markup.button.url('📢 Join Channel', `https://t.me/${MY_CHANNEL.replace('@','')}`)]]));
+    const txt=`What can this bot do?\n\n💎 Why USDT Earn is Different\n\nMany bots promise to pay, but they don't.\nMany say 24 hours, but you wait forever.\n\nWe are different.\n\n⚡ At USDT Earn, withdrawals arrive in MINUTES.\n💰 Real USDT - TRC20 / BEP20\n✅ No delays, no stories\n\nMinimum: $5 USDT (20% fee)\nYou withdraw $5 → Get $4 in 1 minute!\n\nReferral: Earn $0.025 per valid referral\nValid = referral completes ALL ads (20+15+20) for 2 days\n\nYour link: https://t.me/${BOT_USERNAME}?start=${tgUser.id}\nUsername: ${tgUsername || tgFirstName}\n\nPlease:\n🙏 No fake referrals\n🙏 Complete 20 tasks daily\n🙏 Stay active ${MY_CHANNEL}\n\nReal users = Fast payments. Always`;
+    ctx.reply(txt, Markup.inlineKeyboard([
+      [Markup.button.webApp('🚀 Launch Mini App', MINI_APP_URL)], 
+      [Markup.button.url('📢 Join Channel', `https://t.me/${MY_CHANNEL.replace('@','')}`)]
+    ]));
   });
-  bot.launch().then(()=>console.log('Bot running')).catch(e=>console.log(e));
+  bot.launch().then(()=>console.log('Bot running @'+BOT_USERNAME)).catch(e=>console.log(e));
 }
 
 let users = {};
@@ -67,12 +94,56 @@ function checkAllAdsComplete(u){
   return (u.ad1Count>=20 && u.ad2Count>=15 && u.ad3Count>=20);
 }
 
+// INTELLIGENT AI FUNCTION - READS AND THINKS
+function getSmartAIReply(userMsg, userData){
+  const msg = userMsg.toLowerCase();
+  const bal = userData?.balance || 0;
+  const refs = userData?.referrals || [];
+  const valid = refs.filter(r=>r.valid).length;
+  const pending = refs.length - valid;
+  const total = refs.length;
+  const earnings = valid * 0.025;
+  const ad1 = userData?.ad1Count || 0;
+  const ad2 = userData?.ad2Count || 0;
+  const ad3 = userData?.ad3Count || 0;
+  const username = userData?.username || userData?.firstName || 'boss';
+
+  if(msg.match(/hello|hi|hey|good morning|good evening/)){
+    return `Hello ${username}! 👋 I'm your smart AI for @${BOT_USERNAME}.\n\nI can see:\n• Balance: $${bal.toFixed(4)}\n• Referrals: ${total} (${valid} valid)\n• Today: AD1 ${ad1}/20, AD2 ${ad2}/15, SPECIAL ${ad3}/20\n\nHow can I help you? Ask about withdrawal, referral, or earnings - I think and answer smart, not repeat!`;
+  }
+  if(msg.match(/balance|my money|how much.*have|check.*balance/)){
+    const need = (5 - bal).toFixed(4);
+    if(bal >= 5) return `${username}, your balance is $${bal.toFixed(4)} USDT ✅ You CAN withdraw now! Min $5 met.\n\nAfter 20% fee you get $${(bal*0.8).toFixed(4)} on ${userData?.lastNetwork||'BEP20'}.\nGo to Account > Withdraw > Enter address > Confirm. Arrives in seconds!`;
+    return `${username}, balance $${bal.toFixed(4)}. You need $${need} more to reach $5.\n\nYou can earn today:\nAD1: ${20-ad1} left = $${((20-ad1)*0.005).toFixed(3)}\nAD2: ${15-ad2} left\nSPECIAL: ${20-ad3} left = $${((20-ad3)*0.01).toFixed(3)}\n\nTotal potential today: $${(((20-ad1)*0.005)+((15-ad2)*0.005)+((20-ad3)*0.01)).toFixed(3)} Keep watching!`;
+  }
+  if(msg.match(/withdraw|bep20|trc20|payout|payment|send.*money/)){
+    if(msg.includes('bep20')) return `BEP20 = Binance Smart Chain 🌐\nAddress starts with 0x...\n\nYour balance $${bal.toFixed(4)}\nFee 20% → You receive $${(bal*0.8).toFixed(4)}\nGas fee very low (~$0.10)\nFast: seconds after approval.\n\nMake sure your wallet supports BEP20 USDT (Trust Wallet, Binance).`;
+    if(msg.includes('trc20')) return `TRC20 = Tron Network 🌐\nAddress starts with T...\n\nYour balance $${bal.toFixed(4)}\nFee 20% → Receive $${(bal*0.8).toFixed(4)}\nAlso fast, seconds.\n\nTRC20 USDT has lower network fee but our system fee is same 20% for both. Use Trust Wallet, TronLink.`;
+    if(msg.match(/how long|when|time|arrive|not.*received/)) return `${username}, withdrawals arrive in a few seconds after approval (30 sec - 2 min). Notice board says it. If not arrived:\n1. Check address correct (BEP20=0x, TRC20=T)\n2. Check blockchain explorer\n3. Contact support with TXID\n\nMin $5, fee 20%. Your balance $${bal.toFixed(4)} ${bal>=5?'✅ can withdraw':'❌ need $'+(5-bal).toFixed(4)+' more'}`;
+    return `Withdraw info @${BOT_USERNAME}:\n• Networks: BEP20 (0x...) & TRC20 (T...)\n• Min: $5 USDT\n• Fee: 20% (You get 80%)\n• Speed: seconds after approval\n• Your balance: $${bal.toFixed(4)} ${bal>=5?'✅ Eligible':'❌ Not enough'}\n\nExample: $5 → Fee $1 → You get $4\n$10 → Fee $2 → You get $8`;
+  }
+  if(msg.match(/refer|invite|friend|link|earn.*refer/)){
+    if(msg.match(/how much|earn.*refer|refer.*earn/)) return `You earn $0.025 per VALID referral 💰\n\nValid = referral must complete ALL ads for 2 different days:\nDay1: AD1 20 + AD2 15 + SPECIAL 20 = ✅\nDay2: Same again = ✅ → $0.025 credited!\n\nYour stats:\nTotal invited: ${total}\nPending (need 2 days): ${pending}\nValid paid: ${valid}\nEarnings: $${earnings.toFixed(3)}\n\nIf your friend stops after 1 day, not valid. Need 2 days!`;
+    if(msg.match(/track|status|check.*refer/)) return `Tracking for ${username}:\nTotal: ${total} invited\nPending: ${pending} (did only 1 day or not completed)\nValid: ${valid} (did 2 days full)\nEarnings: $${earnings.toFixed(3)}\n\nYour bot link: https://t.me/${BOT_USERNAME}?start=${userData?.telegramId||'YOURID'}\nShare BOT link, not website!`;
+    return `Referral link @${BOT_USERNAME}:\nhttps://t.me/${BOT_USERNAME}?start=${userData?.telegramId||'YOURID'}\n\n• $0.025 per valid\n• Valid = 2 days ALL ads (20+15+20)\n• Auto tracking: Bot shows Day1 ✅ Day2 ✅\n• Your: ${valid} valid, ${pending} pending, $${earnings.toFixed(3)} earned\n\nTip: Tell friends to complete all ads 2 days, not just join!`;
+  }
+  if(msg.match(/earn|ad.*1|ad.*2|special|how.*earn|task/)){
+    return `Earn today ${username}:\nAD1: ${ad1}/20 done, ${20-ad1} left = $${((20-ad1)*0.005).toFixed(3)}\nAD2: ${ad2}/15 done, ${15-ad2} left = $${((15-ad2)*0.005).toFixed(3)}\nSPECIAL: ${ad3}/20 done, ${20-ad3} left = $${((20-ad3)*0.01).toFixed(3)}\n\nDaily total potential: ~$0.375\nResets 00:00 UTC (1 AM Lagos).\n\nWatch ads on Earn tab, then check-in daily for $0.01 bonus!`;
+  }
+  if(msg.match(/fee|20%|why.*fee/)){
+    return `20% fee reason:\n• Covers BSC/Tron network gas\n• Processing cost\n• Anti-spam\n\nExample:\n$5 withdraw → $1 fee → You get $4\n$10 → $2 fee → You get $8\n\nBoth BEP20 & TRC20 same fee. Min $5. Arrives seconds after approval. No hidden fee beyond 20%.`;
+  }
+  return `You said: "${userMsg}"\n\nI read and understood, ${username}! Here's smart help:\n• Balance: $${bal.toFixed(4)} (need $${(5-bal>0?(5-bal).toFixed(4):0)} more for $5 min)\n• Ads: AD1 ${ad1}/20, AD2 ${ad2}/15, SPECIAL ${ad3}/20\n• Referrals: ${valid}/${total} valid = $${earnings.toFixed(3)}\n• Withdraw: BEP20/TRC20, $5 min, 20% fee, seconds\n\nAsk specific like "my referral status?" "how to withdraw BEP20?" "how much to earn today?" I think and answer, not repeat!`;
+}
+
 app.get('/api/user',(req,res)=>{
   const id=req.query.userId;
-  const botUsername=process.env.BOT_USERNAME||'AdsPayoutBot';
+  const username = req.query.username ? decodeURIComponent(req.query.username) : '';
+  const firstName = req.query.firstName ? decodeURIComponent(req.query.firstName) : '';
+  
   if(!users[id]){ 
     users[id]={
-      balance:0,
+      balance:0.05,
       tasksCompleted:[],
       referralCount:0,
       ad1Count:0,ad1Date:'',
@@ -82,11 +153,23 @@ app.get('/api/user',(req,res)=>{
       referralEarnings:0,
       referredBy:'',
       completedDays:[],
-      referralLink:`https://t.me/${botUsername}?start=${id}`
+      username: username || '',
+      firstName: firstName || '',
+      telegramId: id,
+      referralLink:`https://t.me/${BOT_USERNAME}?start=${id}`,
+      botUsername: BOT_USERNAME
     }; 
     save(); 
   }
-  // init missing fields for old users
+  // AUTO UPDATE USERNAME - FIX FROM SCREENSHOT
+  if(username) users[id].username = username;
+  if(firstName) users[id].firstName = firstName;
+  if(!users[id].telegramId) users[id].telegramId = id;
+  
+  // Always bot link
+  users[id].referralLink = `https://t.me/${BOT_USERNAME}?start=${id}`;
+  users[id].botUsername = BOT_USERNAME;
+
   if(users[id].ad3Count===undefined){ users[id].ad3Count=0; users[id].ad3Date=''; }
   if(!users[id].referrals) users[id].referrals=[];
   if(users[id].referralEarnings===undefined) users[id].referralEarnings=0;
@@ -129,8 +212,13 @@ app.post('/api/complete-task', async (req,res)=>{
 });
 
 app.post('/api/earn',(req,res)=>{
-  const {userId, amount, adType}=req.body;
+  const {userId, amount, adType, username, firstName}=req.body;
   if(!users[userId]) users[userId]={balance:0,tasksCompleted:[],referralCount:0,ad1Count:0,ad1Date:'',ad2Count:0,ad2Date:'',ad3Count:0,ad3Date:'',referrals:[],referralEarnings:0,completedDays:[]};
+  
+  // AUTO SAVE USERNAME
+  if(username) users[userId].username = username;
+  if(firstName) users[userId].firstName = firstName;
+
   const today=getToday();
   if(users[userId].ad1Date!==today){ users[userId].ad1Count=0; users[userId].ad1Date=today; }
   if(users[userId].ad2Date!==today){ users[userId].ad2Count=0; users[userId].ad2Date=today; }
@@ -139,20 +227,19 @@ app.post('/api/earn',(req,res)=>{
   if(adType==='ad1'){ if(users[userId].ad1Count>=20) return res.json({ok:false, msg:"❌ Ad #1 limit 20/day reached!"}); users[userId].ad1Count++; }
   if(adType==='ad2'){ if(users[userId].ad2Count>=15) return res.json({ok:false, msg:"❌ Ad #2 limit 15/day reached!"}); users[userId].ad2Count++; }
   if(adType==='ad3'){ if(users[userId].ad3Count>=20) return res.json({ok:false, msg:"❌ Special Ad limit 20/day reached!"}); users[userId].ad3Count++; }
+  if(adType==='checkin'){ /* allow checkin */ }
 
-  users[userId].balance+=parseFloat(amount);
+  if(amount) users[userId].balance+=parseFloat(amount);
 
-  // === REFERRAL TRACKING: Check if user completed ALL ads today ===
   if(checkAllAdsComplete(users[userId])){
     if(!users[userId].completedDays.includes(today)){
       users[userId].completedDays.push(today);
-      // If this user was referred by someone, update referrer tracking
       let refBy = users[userId].referredBy;
       if(refBy && users[refBy]){
         if(!users[refBy].referrals) users[refBy].referrals=[];
         let refEntry = users[refBy].referrals.find(r=>r.id===userId);
         if(!refEntry){
-          refEntry={id:userId, day1Complete:true, day1Date:today, day2Complete:false, day2Date:'', valid:false, date:new Date().toISOString()};
+          refEntry={id:userId, username:users[userId].username||users[userId].firstName||'', day1Complete:true, day1Date:today, day2Complete:false, day2Date:'', valid:false, date:new Date().toISOString()};
           users[refBy].referrals.push(refEntry);
         } else if(!refEntry.valid){
           if(!refEntry.day1Complete){
@@ -162,7 +249,6 @@ app.post('/api/earn',(req,res)=>{
             refEntry.day2Complete=true;
             refEntry.day2Date=today;
             refEntry.valid=true;
-            // PAY REFERRER $0.025
             users[refBy].balance+=0.025;
             users[refBy].referralEarnings=(users[refBy].referralEarnings||0)+0.025;
             users[refBy].referralCount=(users[refBy].referralCount||0)+1;
@@ -171,27 +257,37 @@ app.post('/api/earn',(req,res)=>{
       }
     }
   }
-
   save();
   res.json({ok:true, balance:users[userId].balance, ad1Count:users[userId].ad1Count, ad2Count:users[userId].ad2Count, ad3Count:users[userId].ad3Count});
 });
 
-// === NEW REFERRAL ENDPOINT FOR WEB APP (mini app) ===
 app.post('/api/referral-join',(req,res)=>{
-  const {userId, referredBy}=req.body;
+  const {userId, referredBy, username, firstName}=req.body;
   if(!userId || !referredBy || userId===referredBy) return res.json({ok:false});
-  if(!users[userId]) users[userId]={balance:0,tasksCompleted:[],referralCount:0,ad1Count:0,ad1Date:'',ad2Count:0,ad2Date:'',ad3Count:0,ad3Date:'',referrals:[],referralEarnings:0,completedDays:[],referredBy:''};
-  if(!users[referredBy]) users[referredBy]={balance:0,tasksCompleted:[],referralCount:0,ad1Count:0,ad1Date:'',ad2Count:0,ad2Date:'',ad3Count:0,ad3Date:'',referrals:[],referralEarnings:0,completedDays:[],referralLink:`https://t.me/${process.env.BOT_USERNAME||'AdsPayoutBot'}?start=${referredBy}`};
+  if(!users[userId]) users[userId]={balance:0.05,tasksCompleted:[],referralCount:0,ad1Count:0,ad1Date:'',ad2Count:0,ad2Date:'',ad3Count:0,ad3Date:'',referrals:[],referralEarnings:0,completedDays:[],referredBy:'', username:username||'', firstName:firstName||''};
+  if(!users[referredBy]) users[referredBy]={balance:0,tasksCompleted:[],referralCount:0,ad1Count:0,ad1Date:'',ad2Count:0,ad2Date:'',ad3Count:0,ad3Date:'',referrals:[],referralEarnings:0,completedDays:[],referralLink:`https://t.me/${BOT_USERNAME}?start=${referredBy}`};
+
+  if(username) users[userId].username = username;
+  if(firstName) users[userId].firstName = firstName;
 
   if(!users[userId].referredBy){
     users[userId].referredBy=referredBy;
   }
   if(!users[referredBy].referrals) users[referredBy].referrals=[];
   if(!users[referredBy].referrals.find(r=>r.id===userId)){
-    users[referredBy].referrals.push({id:userId, day1Complete:false, day1Date:'', day2Complete:false, day2Date:'', valid:false, date:new Date().toISOString()});
+    users[referredBy].referrals.push({id:userId, username:username||'', firstName:firstName||'', day1Complete:false, day1Date:'', day2Complete:false, day2Date:'', valid:false, date:new Date().toISOString()});
   }
   save();
   res.json({ok:true});
+});
+
+// SMART AI ENDPOINT - THINKS
+app.post('/api/ai-chat',(req,res)=>{
+  const {userId, message} = req.body;
+  if(!message) return res.json({ok:false, msg:"No message"});
+  const userData = users[userId] || {balance:0, referrals:[], ad1Count:0, ad2Count:0, ad3Count:0};
+  const reply = getSmartAIReply(message, userData);
+  res.json({ok:true, reply});
 });
 
 app.post('/api/withdraw',(req,res)=>{
@@ -210,19 +306,14 @@ app.post('/api/withdraw',(req,res)=>{
   const fee=totalAmount*0.20;
   const receiveAmount=totalAmount*0.80;
   const record={
-    id:Date.now(),
-    userId,
-    amount:totalAmount,
-    fee:fee,
-    receive:receiveAmount,
-    wallet:finalWallet,
-    cryptoType:finalNetwork,
-    network:finalNetwork,
-    status:"Pending",
-    date:new Date().toLocaleDateString()
+    id:Date.now(),userId,amount:totalAmount,fee:fee,receive:receiveAmount,
+    wallet:finalWallet,cryptoType:finalNetwork,network:finalNetwork,
+    status:"Pending",date:new Date().toLocaleDateString()
   };
   withdraws.push(record); saveWithdraws();
-  users[userId].balance-=totalAmount; save();
+  users[userId].balance-=totalAmount; 
+  users[userId].lastNetwork = finalNetwork;
+  save();
   res.json({ok:true, msg:`✅ Withdraw $${totalAmount.toFixed(4)} sent! You receive $${receiveAmount.toFixed(4)} after 20% fee on ${finalNetwork}. Arrives in 1 minute!`, receive:receiveAmount, total:totalAmount});
 });
 
@@ -239,4 +330,4 @@ app.post('/api/add-task',(req,res)=>{
 });
 
 app.get('/',(req,res)=>res.sendFile(path.join(__dirname,'public','index.html')));
-app.listen(process.env.PORT||3000,()=>console.log('Running'));
+app.listen(process.env.PORT||3000,()=>console.log('Running @'+BOT_USERNAME));
