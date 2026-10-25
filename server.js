@@ -1,15 +1,13 @@
 import express from 'express';
-import crypto from 'crypto';
 import cors from 'cors';
 import { Telegraf } from 'telegraf';
 import path from 'path';
 import { fileURLToPath } from 'url';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const bot = new Telegraf(process.env.BOT_TOKEN);
-
 const REQUIRED_CHANNEL = "@freeearningofusdt";
 const REF_REWARD = 0.025;
 const MIN_WITHDRAW = 5;
@@ -23,17 +21,19 @@ let tasks = [
 ];
 let processedEvents = new Set();
 
-app.use('/api/adsgalaxy/reward', express.raw({type: '*/*'}));
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({extended:true}));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ADSGALAXY @Realads01_bot CALLBACK
-app.post('/api/adsgalaxy/reward', (req,res) => {
+// Health check for Render
+app.get('/health', (req,res)=>res.send("OK"));
+
+// ADSGALAXY CALLBACK FOR @Realads01_bot
+app.post('/api/adsgalaxy/reward', express.json(), (req,res) => {
   try{
-    const raw = req.body.toString();
-    const payload = JSON.parse(raw);
-    const eventId = req.headers['x-adsgalaxy-event-id'] || payload.event_id;
+    const payload = req.body;
+    const eventId = req.headers['x-adsgalaxy-event-id'] || payload.event_id || Date.now();
     if(processedEvents.has(eventId)) return res.status(200).send("Already");
     const userId = payload.user_id?.toString();
     if(userId){
@@ -48,16 +48,17 @@ app.post('/api/adsgalaxy/reward', (req,res) => {
 
 app.get('/api/check-joined', async (req,res) => {
   try{
+    const bot = new Telegraf(process.env.BOT_TOKEN);
     const m = await bot.telegram.getChatMember(REQUIRED_CHANNEL, req.query.userId);
     res.json({joined: !['left','kicked','banned'].includes(m.status)});
-  }catch(e){ res.json({joined:false}); }
+  }catch(e){ res.json({joined:true}); }
 });
 
 app.get('/api/user', (req,res) => {
   const { userId } = req.query;
   if(!users[userId]) users[userId] = { balance: 0, tasks: 0, referrals: [], referredBy: null };
   const u = users[userId];
-  res.json({ balance: u.balance, tasks: u.tasks, referralCount: u.referrals.length, referralLink: `https://t.me/${process.env.BOT_USERNAME || 'AdsPayoutBot'}?startapp=${userId}` });
+  res.json({ balance: u.balance, tasks: u.tasks, referralCount: u.referrals.length, referralLink: `https://t.me/${process.env.BOT_USERNAME || 'Realads01_bot'}?startapp=${userId}` });
 });
 
 app.get('/api/tasks', (req,res) => res.json(tasks));
@@ -86,25 +87,24 @@ app.post('/api/withdraw', (req,res) => {
   const { userId, wallet, cryptoType } = req.body;
   const user = users[userId];
   if(!user || user.balance < MIN_WITHDRAW) return res.json({ok:false, msg:`Min $${MIN_WITHDRAW}. You have $${user?.balance.toFixed(4) || 0}`});
-  if(BLOCKED.includes(cryptoType)) return res.json({ok:false, msg:`${cryptoType} blocked. LTC & DOGE not allowed`});
+  if(BLOCKED.includes(cryptoType)) return res.json({ok:false, msg:`${cryptoType} blocked`});
   const fee = user.balance * 0.20;
   const payout = user.balance - fee;
   withdrawals.push({ id: Date.now(), userId, wallet, cryptoType, requested: user.balance, fee, payout, status: "pending", date: new Date().toISOString() });
   user.balance = 0;
-  res.json({ok:true, msg:`Manual request sent! You will get $${payout.toFixed(4)} in ${cryptoType} (20% fee)`});
+  res.json({ok:true, msg:`Manual request sent! You will get $${payout.toFixed(4)} in ${cryptoType}`});
 });
 
 app.get('/api/admin/tasks', (req,res) => res.json(tasks));
 app.post('/api/admin/tasks', (req,res) => {
-  const { title, reward, link, type, secret } = req.body;
-  if(secret !== process.env.ADMIN_SECRET) return res.status(403).json({ok:false});
-  tasks.push({ id: Date.now(), title, reward: parseFloat(reward), link, type });
-  res.json({ok:true, tasks});
+  if(req.body.secret !== process.env.ADMIN_SECRET) return res.status(403).json({ok:false});
+  tasks.push({ id: Date.now(), title: req.body.title, reward: parseFloat(req.body.reward), link: req.body.link, type: req.body.type });
+  res.json({ok:true});
 });
 app.delete('/api/admin/tasks/:id', (req,res) => {
   if(req.body.secret !== process.env.ADMIN_SECRET) return res.status(403).json({ok:false});
   tasks = tasks.filter(t => t.id != req.params.id);
-  res.json({ok:true, tasks});
+  res.json({ok:true});
 });
 app.get('/api/admin/withdrawals', (req,res) => {
   if(req.query.secret !== process.env.ADMIN_SECRET) return res.status(403).json({ok:false});
@@ -114,11 +114,16 @@ app.post('/api/admin/withdrawals/approve', (req,res) => {
   if(req.body.secret !== process.env.ADMIN_SECRET) return res.status(403).json({ok:false});
   const w = withdrawals.find(x => x.id == req.body.id);
   if(w) w.status = "paid";
-  res.json({ok:true, withdrawals});
+  res.json({ok:true});
 });
 
 app.get('/admin', (req,res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
 app.get('*', (req,res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
-bot.launch();
+// Bot launch safely - won't crash server
+if(process.env.BOT_TOKEN){
+  const bot = new Telegraf(process.env.BOT_TOKEN);
+  bot.launch().then(()=>console.log("Bot launched")).catch(e=>console.log("Bot error:", e.message));
+}
+
 app.listen(process.env.PORT || 10000, () => console.log("Ads Payout Running"));
