@@ -14,15 +14,14 @@ body{background:#0B0E1A;color:#fff}
 .bottom-nav{background:#151928;border-top:1px solid #232738}
 .nav-active{color:#7C5CFF !important}
 #aiMessages::-webkit-scrollbar{display:none}
+.ai-float{position:fixed;left:16px;bottom:80px;z-index:40;width:56px;height:56px;background:#7C5CFF;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(124,92,255,0.5);cursor:pointer}
+.ai-float:hover{transform:scale(1.1)}
 </style>
 </head>
 <body class="pb-24">
 <div class="flex justify-between items-center p-4">
 <h1 class="font-bold text-lg">Ads Payout</h1>
-<div class="flex gap-2 items-center">
-<button onclick="openAISupport()" class="text-xs bg-[#7C5CFF] px-3 py-1 rounded-full">💬 AI Support</button>
 <span class="text-xs bg-[#1E2235] px-3 py-1 rounded-full">USDT</span>
-</div>
 </div>
 
 <div id="homeTab">
@@ -34,21 +33,14 @@ body{background:#0B0E1A;color:#fff}
 </div>
 <div class="w-14 h-14 bg-[#7C5CFF] rounded-xl flex items-center justify-center text-2xl">💎</div>
 </div>
-
 <div class="mx-4 mt-3 flex gap-2">
 <div class="card-dark rounded-2xl p-3 flex-1 text-center"><p class="text-[11px] text-gray-400">Tasks</p><p id="tasksCount" class="font-bold">0</p></div>
 <div class="card-dark rounded-2xl p-3 flex-1 text-center"><p class="text-[11px] text-gray-400">Streak</p><p class="font-bold">1</p></div>
 <div class="card-dark rounded-2xl p-3 flex-1 text-center"><p class="text-[11px] text-gray-400">Refs</p><p id="refsCountHome" class="font-bold">0</p></div>
 </div>
-
 <div class="mx-4 mt-4 bg-[#7C5CFF] rounded-[20px] p-4 flex justify-between items-center">
 <div><p class="font-bold text-sm">🔥 Daily Check-in</p><p class="text-xs opacity-80">Day 1 reward: 0.010 USDT</p></div>
 <button onclick="doEarn(0.01)" class="bg-white text-[#7C5CFF] rounded-full px-5 py-2 text-sm font-bold">Check In</button>
-</div>
-
-<div class="mx-4 mt-3 card-dark rounded-2xl p-3 flex gap-2 items-center">
-<div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center"><i class="fas fa-robot text-xs"></i></div>
-<p class="text-xs">Need help? <b onclick="openAISupport()" class="text-[#7C5CFF] underline">AI Support</b> - withdrawals in 1 min!</p>
 </div>
 </div>
 
@@ -88,9 +80,6 @@ body{background:#0B0E1A;color:#fff}
 <p class="font-bold text-sm mb-3">💸 Withdrawal History</p>
 <div id="withdrawHistory" class="space-y-2"><p class="text-xs text-gray-500">Loading...</p></div>
 </div>
-<div class="mx-4 mt-4">
-<button onclick="openAISupport()" class="w-full card-dark rounded-xl py-3 text-sm font-bold">💬 Contact AI Support</button>
-</div>
 </div>
 
 <div id="withdrawModal" class="fixed inset-0 z-50 bg-black/80 hidden items-center justify-center p-6">
@@ -110,11 +99,16 @@ body{background:#0B0E1A;color:#fff}
 </div>
 </div>
 
-<!-- INTELLIGENT AI SUPPORT MODAL -->
+<!-- FLOATING AI SUPPORT BUTTON - LIKE MESSAGE LOGO BOTTOM LEFT -->
+<div class="ai-float" onclick="openAISupport()">
+<i class="fas fa-comments text-xl"></i>
+</div>
+
+<!-- AI MODAL -->
 <div id="aiModal" class="fixed inset-0 z-[60] bg-black/90 hidden flex-col">
 <div class="bg-[#151928] p-4 flex justify-between items-center border-b border-gray-800">
-<div class="flex items-center gap-3"><div class="w-10 h-10 bg-[#7C5CFF] rounded-full flex items-center justify-center"><i class="fas fa-robot"></i></div><div><p class="font-bold text-sm">Intelligent AI Support • Online</p><p class="text-[11px] text-green-400">● Understands all questions</p></div></div>
-<button onclick="closeAISupport()" class="w-8 h-8 bg-[#232738] rounded-full">✕</button>
+<div class="flex items-center gap-3"><div class="w-10 h-10 bg-[#7C5CFF] rounded-full flex items-center justify-center"><i class="fas fa-robot"></i></div><div><p class="font-bold text-sm">Intelligent AI Support • Online</p><p class="text-[11px] text-green-400">● Replies in seconds - All withdrawals 1 min</p></div></div>
+<button onclick="closeAISupport()" class="w-8 h-8 bg-[#232738] rounded-full flex items-center justify-center">✕</button>
 </div>
 <div id="aiQuick" class="p-2 flex gap-2 overflow-x-auto bg-[#0B0E1A] border-b border-gray-800">
 <button onclick="quickAsk('withdraw')" class="whitespace-nowrap text-[11px] bg-[#232738] px-3 py-1.5 rounded-full">💸 Withdrawal?</button>
@@ -125,13 +119,40 @@ body{background:#0B0E1A;color:#fff}
 </div>
 <div id="aiMessages" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
 <div class="p-3 bg-[#151928] border-t border-gray-800 flex gap-2">
-<input id="aiInput" placeholder="Ask anything about the bot..." class="flex-1 bg-[#0B0E1A] border border-gray-700 rounded-full px-4 py-3 text-sm" onkeypress="if(event.key==='Enter')sendAI()">
+<input id="aiInput" placeholder="Ask anything about bot..." class="flex-1 bg-[#0B0E1A] border border-gray-700 rounded-full px-4 py-3 text-sm" onkeypress="if(event.key==='Enter')sendAI()">
 <button onclick="sendAI()" class="w-12 h-12 bg-[#7C5CFF] rounded-full flex items-center justify-center"><i class="fas fa-paper-plane"></i></button>
 </div>
 </div>
 
-<div class="fixed bottom-0 left-0 right-0 bottom-nav flex justify-around py-3">
-<button onclick="switchTab('home')" id="nav-home" class="nav-active flex flex-col items-center text-xs"><i class="fas fa-th-large text-lg"></i><span class="mt-1">Home</span></button>
-<button onclick="switchTab('earn')" id="nav-earn" class="flex flex-col items-center text-xs text-gray-500"><i class="fas fa-list text-lg"></i><span class="mt-1">Earn</span></button>
-<button onclick="switchTab('refer')" id="nav-refer" class="flex flex-col items-center text-xs text-gray-500"><i class="fas fa-gift text-lg"></i><span class="mt-1">Refer</span></button>
-<button onclick="switchTab('account')" id="nav-account
+<!-- FIXED BOTTOM NAV - 4 BUTTONS NOW -->
+<div class="fixed bottom-0 left-0 right-0 bottom-nav flex justify-around py-3 z-30">
+<button onclick="switchTab('home')" id="nav-home" class="nav-active flex flex-col items-center text-xs w-1/4"><i class="fas fa-th-large text-lg"></i><span class="mt-1">Home</span></button>
+<button onclick="switchTab('earn')" id="nav-earn" class="flex flex-col items-center text-xs text-gray-500 w-1/4"><i class="fas fa-list text-lg"></i><span class="mt-1">Earn</span></button>
+<button onclick="switchTab('refer')" id="nav-refer" class="flex flex-col items-center text-xs text-gray-500 w-1/4"><i class="fas fa-gift text-lg"></i><span class="mt-1">Refer</span></button>
+<button onclick="switchTab('account')" id="nav-account" class="flex flex-col items-center text-xs text-gray-500 w-1/4"><i class="fas fa-user text-lg"></i><span class="mt-1">Account</span></button>
+</div>
+
+<script>
+let userId=null; let _completed=[]; let ad1Left=20, ad2Left=15;
+function init(){ const tg=window.Telegram.WebApp; tg.ready(); tg.expand(); const u=tg.initDataUnsafe?.user; userId=u?.id || new URLSearchParams(location.search).get('userId') || '12345'; loadUser(); loadTasks(); }
+async function loadUser(){ const r=await fetch(`/api/user?userId=${userId}`); const d=await r.json(); document.getElementById('balance').innerText=d.balance.toFixed(4); document.getElementById('balance2').innerText=d.balance.toFixed(4); document.getElementById('balance3').innerText=d.balance.toFixed(4); document.getElementById('balanceSub').innerText='≈$'+d.balance.toFixed(4)+' USDT'; document.getElementById('tasksCount').innerText=d.tasksCompleted?.length||0; document.getElementById('refsCountHome').innerText=d.referralCount; document.getElementById('refTotal').innerText=d.referralCount; document.getElementById('refEarned').innerText='$'+(d.referralCount*0.025).toFixed(3); document.getElementById('refLink').value=d.referralLink; document.getElementById('wBalance').innerText='$'+d.balance.toFixed(4); _completed=d.tasksCompleted||[]; ad1Left=20-(d.ad1Count||0); ad2Left=15-(d.ad2Count||0); }
+async function loadTasks(){ const r=await fetch('/api/tasks'); const list=await r.json(); document.getElementById('tasksList').innerHTML = list.map(t=>{ const done=_completed.includes(t.id); if(done){ return `<div class="card-dark rounded-[20px] p-4 flex justify-between items-center opacity-60"><div class="flex items-center gap-3"><div class="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center"><i class="fas fa-check"></i></div><div><p class="font-bold text-sm">${t.title}</p><p class="text-xs text-emerald-400">${t.reward} USDT - Done</p></div></div><button disabled class="bg-gray-700 rounded-full px-5 py-2 text-xs">Done</button></div>`; } if(t.link=='ad1'){ return `<div class="card-dark rounded-[20px] p-4 flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-12 h-12 bg-[#3BA4FF] rounded-full flex items-center justify-center"><i class="fas fa-play"></i></div><div><p class="font-bold text-sm">WATCH AD #1</p><p class="text-xs text-emerald-400">0.005 USDT • ${ad1Left} left today</p></div></div><button onclick="watchAd1()" class="bg-[#3BA4FF] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div>`; } if(t.link=='ad2'){ return `<div class="card-dark rounded-[20px] p-4 flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-12 h-12 bg-[#3BA4FF] rounded-full flex items-center justify-center"><i class="fas fa-play"></i></div><div><p class="font-bold text-sm">WATCH AD #2</p><p class="text-xs text-emerald-400">0.005 USDT • ${ad2Left} left today</p></div></div><button onclick="watchAd2()" class="bg-[#3BA4FF] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div>`; } return `<div class="card-dark rounded-[20px] p-4 flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-12 h-12 bg-[#0FAE79] rounded-full flex items-center justify-center"><i class="fas fa-bullhorn"></i></div><div><p class="font-bold text-sm">${t.title}</p><p class="text-xs text-emerald-400">${t.reward} USDT</p></div></div><button onclick="openAndClaim(${t.id}, '${t.link}')" class="bg-[#0FAE79] rounded-full px-5 py-2 text-xs font-bold">Join</button></div>`; }).join(''); }
+async function openAndClaim(id, link){ if(link && link.startsWith('http')) window.open(link,'_blank'); setTimeout(async()=>{ const r=await fetch('/api/complete-task',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId, taskId:id})}); const d=await r.json(); if(d.ok){ loadUser(); loadTasks(); } else alert(d.msg); },1500); }
+async function watchAd1(){ if(ad1Left<=0){alert('❌ Ad #1 limit 20/day'); return;} alert(`📺 Ad #1 ${20-ad1Left+1}/20`); await new Promise(r=>setTimeout(r,3000)); doEarn(0.005,'ad1'); }
+async function watchAd2(){ if(ad2Left<=0){alert('❌ Ad #2 limit 15/day'); return;} alert(`📺 Ad #2 ${15-ad2Left+1}/15`); await new Promise(r=>setTimeout(r,3000)); doEarn(0.005,'ad2'); }
+async function doEarn(a, type=''){ const body=type?{userId, amount:a, adType:type}:{userId, amount:a}; const r=await fetch('/api/earn',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}); const d=await r.json(); if(!d.ok){ alert(d.msg); return; } loadUser(); setTimeout(loadTasks,200); }
+function switchTab(t){ ['home','earn','refer','account'].forEach(x=>{ const el=document.getElementById(x+'Tab'); if(el) el.classList.add('hidden'); }); document.getElementById(t+'Tab').classList.remove('hidden'); document.querySelectorAll('.bottom-nav button').forEach(b=>{b.classList.remove('nav-active'); b.classList.add('text-gray-500');}); document.getElementById('nav-'+t).classList.add('nav-active'); document.getElementById('nav-'+t).classList.remove('text-gray-500'); if(t=='account') loadHistory(); }
+function openWithdraw(){ document.getElementById('withdrawModal').classList.remove('hidden'); document.getElementById('withdrawModal').classList.add('flex'); const bal=parseFloat(document.getElementById('wBalance').innerText.replace('$',''))||0; document.getElementById('receivePreview').innerText=`You receive: $${(bal*0.8).toFixed(4)} after 20% fee (1 min)`; }
+function closeWithdraw(){ document.getElementById('withdrawModal').classList.add('hidden'); document.getElementById('withdrawModal').classList.remove('flex'); }
+async function doWithdraw(){ const wallet=document.getElementById('walletInput').value; const cryptoType=document.getElementById('cryptoSelect').value; if(!wallet){alert('Enter wallet');return;} const r=await fetch('/api/withdraw',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId,wallet,cryptoType})}); const d=await r.json(); document.getElementById('wStatus').innerText=d.msg; if(d.ok){ loadUser(); loadHistory(); setTimeout(()=>{closeWithdraw(); openAISupport(); addAIMsg('bot',`✅ <b>Withdrawal Received!</b><br><br>💰 Withdrew: $${d.total.toFixed(4)}<br>📤 You receive: <b>$${d.receive.toFixed(4)}</b> after 20% fee<br>⏰ <b>1 minute</b> to ${cryptoType}<br><br>Relax! Processing now! 🚀`);},600);} }
+async function loadHistory(){ const r=await fetch(`/api/withdraws?userId=${userId}`); const list=await r.json(); const div=document.getElementById('withdrawHistory'); if(!list||list.length==0){ div.innerHTML='<p class="text-xs text-gray-500 text-center py-4">No withdrawals yet<br>Min $5.00 - 20% fee - 1 min arrival</p>'; return; } div.innerHTML=list.map(w=>`<div class="card-dark rounded-xl p-3 flex justify-between items-center"><div><p class="text-sm font-bold">$${Number(w.amount).toFixed(4)} → $${Number(w.receive||w.amount*0.8).toFixed(4)} - ${w.cryptoType}</p><p class="text-[11px] text-gray-400">${w.wallet.slice(0,12)}... • ${w.date}</p></div><span class="text-[11px] px-3 py-1 rounded-full ${w.status=='Paid'?'bg-green-600':'bg-yellow-500 text-black'}">${w.status}</span></div>`).join(''); }
+function copyRef(){ navigator.clipboard.writeText(document.getElementById('refLink').value); alert("Copied!"); }
+function openAISupport(){ document.getElementById('aiModal').classList.remove('hidden'); document.getElementById('aiModal').classList.add('flex'); const box=document.getElementById('aiMessages'); if(box.children.length===0){ addAIMsg('bot',`Hi! I'm Intelligent AI Support 🤖💜<br><br>💸 Withdrawal: <b>$5 min + 20% fee</b> → <b>1 minute</b><br>⚡ Earn: 0.005 per ad (35 ads/day)<br>🎁 Referral: 0.025/friend<br><br>Ask ANYTHING!`); } }
+function closeAISupport(){ document.getElementById('aiModal').classList.add('hidden'); document.getElementById('aiModal').classList.remove('flex'); }
+function addAIMsg(who, text){ const box=document.getElementById('aiMessages'); const div=document.createElement('div'); div.className=`flex ${who==='bot'?'justify-start':'justify-end'}`; div.innerHTML=`<div class="${who==='bot'?'bg-[#232738]':'bg-[#7C5CFF]'} rounded-2xl px-4 py-3 max-w-[85%] text-sm leading-relaxed">${text}<div class="text-[10px] opacity-40 mt-1">${new Date().toLocaleTimeString()}</div></div>`; box.appendChild(div); box.scrollTop=box.scrollHeight; }
+function quickAsk(q){ document.getElementById('aiInput').value=q; sendAI(); }
+function sendAI(){ const input=document.getElementById('aiInput'); const txt=input.value.trim(); if(!txt)return; addAIMsg('user', txt); input.value=''; setTimeout(()=>{ const low=txt.toLowerCase(); let reply=''; if(low.match(/withdraw|payout|payment|wallet/)){reply=`✅ Don't worry! 🤗<br><br>💰 Min: <b>$5 USDT</b><br>💸 Fee 20% → $5 → Get $4<br>⏰ Arrival: <b>1 MINUTE!</b><br><br>Safe & processing! Relax! 🚀`;} else if(low.match(/earn|ad|task/)){reply=`⚡ Ad #1 0.005×20=$0.10<br>Ad #2 0.005×15=$0.075<br>Total $0.175/day!<br>Keep earning! 🚀`;} else if(low.match(/refer/)){reply=`🎁 Referral 0.025 per friend!<br>Share link from Refer tab!`;} else if(low.match(/legit|scam|real/)){reply=`✅ 100% Legit!<br>$5 min, 20% fee, pay in 1 MINUTE!<br>Try to test! 🚀`;} else if(low.match(/minimum|fee/)){reply=`💰 Min $5.00<br>Fee 20%<br>$5→$4, $10→$8<br>1 min arrival! ⚡`;} else{reply=`Hi! About "${txt}"<br><br>✅ $5 min +20% → 1 min<br>⚡ 0.005/ad<br>Ask specific! 🚀`;} addAIMsg('bot', reply); },600); }
+window.onload=init;
+</script>
+</body>
+  </html>
