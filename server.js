@@ -1,10 +1,15 @@
-const express = require('express');
-const fs = require('fs');
-const path = require('path');
-const { Telegraf, Markup } = require('telegraf');
+import express from 'express';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { Telegraf, Markup } from 'telegraf';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 app.use(express.json());
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
 let bot;
