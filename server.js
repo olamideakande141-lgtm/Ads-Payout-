@@ -1,129 +1,108 @@
-import express from 'express';
-import cors from 'cors';
-import { Telegraf } from 'telegraf';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
+const express = require('express');
+const fs = require('fs');
+const path = require('path');
+const { Telegraf, Markup } = require('telegraf');
 const app = express();
-const REQUIRED_CHANNEL = "@freeearningofusdt";
-const REF_REWARD = 0.025;
-const MIN_WITHDRAW = 5;
-const BLOCKED = ["LTC","DOGE"];
-
-let users = {};
-let withdrawals = [];
-let tasks = [
-  { id: 1, title: "Join @freeearningofusdt", reward: 0.01, link: "https://t.me/freeearningofusdt", type: "Telegram" },
-  { id: 2, title: "Daily Check-in", reward: 0.01, link: "", type: "Bonus" }
-];
-let processedEvents = new Set();
-
-app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({extended:true}));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static('public'));
 
-// Health check for Render
-app.get('/health', (req,res)=>res.send("OK"));
-
-// ADSGALAXY CALLBACK FOR @Realads01_bot
-app.post('/api/adsgalaxy/reward', express.json(), (req,res) => {
-  try{
-    const payload = req.body;
-    const eventId = req.headers['x-adsgalaxy-event-id'] || payload.event_id || Date.now();
-    if(processedEvents.has(eventId)) return res.status(200).send("Already");
-    const userId = payload.user_id?.toString();
-    if(userId){
-      if(!users[userId]) users[userId] = { balance: 0, tasks: 0, referrals: [], referredBy: null };
-      processedEvents.add(eventId);
-      users[userId].balance += 0.002;
-      users[userId].tasks += 1;
-    }
-    res.status(200).send("OK");
-  }catch(e){ res.status(200).send("OK"); }
-});
-
-app.get('/api/check-joined', async (req,res) => {
-  try{
-    const bot = new Telegraf(process.env.BOT_TOKEN);
-    const m = await bot.telegram.getChatMember(REQUIRED_CHANNEL, req.query.userId);
-    res.json({joined: !['left','kicked','banned'].includes(m.status)});
-  }catch(e){ res.json({joined:true}); }
-});
-
-app.get('/api/user', (req,res) => {
-  const { userId } = req.query;
-  if(!users[userId]) users[userId] = { balance: 0, tasks: 0, referrals: [], referredBy: null };
-  const u = users[userId];
-  res.json({ balance: u.balance, tasks: u.tasks, referralCount: u.referrals.length, referralLink: `https://t.me/${process.env.BOT_USERNAME || 'Realads01_bot'}?startapp=${userId}` });
-});
-
-app.get('/api/tasks', (req,res) => res.json(tasks));
-
-app.post('/api/referral', (req,res) => {
-  const { userId, refId } = req.body;
-  if(!userId || !refId || userId==refId) return res.json({ok:false});
-  if(!users[userId]) users[userId] = { balance: 0, tasks: 0, referrals: [], referredBy: null };
-  if(!users[refId]) users[refId] = { balance: 0, tasks: 0, referrals: [], referredBy: null };
-  if(users[userId].referredBy) return res.json({ok:false});
-  users[userId].referredBy = refId;
-  users[refId].referrals.push(userId);
-  users[refId].balance += REF_REWARD;
-  res.json({ok:true});
-});
-
-app.post('/api/earn', (req,res) => {
-  const { userId, amount } = req.body;
-  if(!users[userId]) users[userId] = { balance: 0, tasks: 0, referrals: [], referredBy: null };
-  users[userId].balance += parseFloat(amount);
-  users[userId].tasks += 1;
-  res.json({ok:true});
-});
-
-app.post('/api/withdraw', (req,res) => {
-  const { userId, wallet, cryptoType } = req.body;
-  const user = users[userId];
-  if(!user || user.balance < MIN_WITHDRAW) return res.json({ok:false, msg:`Min $${MIN_WITHDRAW}. You have $${user?.balance.toFixed(4) || 0}`});
-  if(BLOCKED.includes(cryptoType)) return res.json({ok:false, msg:`${cryptoType} blocked`});
-  const fee = user.balance * 0.20;
-  const payout = user.balance - fee;
-  withdrawals.push({ id: Date.now(), userId, wallet, cryptoType, requested: user.balance, fee, payout, status: "pending", date: new Date().toISOString() });
-  user.balance = 0;
-  res.json({ok:true, msg:`Manual request sent! You will get $${payout.toFixed(4)} in ${cryptoType}`});
-});
-
-app.get('/api/admin/tasks', (req,res) => res.json(tasks));
-app.post('/api/admin/tasks', (req,res) => {
-  if(req.body.secret !== process.env.ADMIN_SECRET) return res.status(403).json({ok:false});
-  tasks.push({ id: Date.now(), title: req.body.title, reward: parseFloat(req.body.reward), link: req.body.link, type: req.body.type });
-  res.json({ok:true});
-});
-app.delete('/api/admin/tasks/:id', (req,res) => {
-  if(req.body.secret !== process.env.ADMIN_SECRET) return res.status(403).json({ok:false});
-  tasks = tasks.filter(t => t.id != req.params.id);
-  res.json({ok:true});
-});
-app.get('/api/admin/withdrawals', (req,res) => {
-  if(req.query.secret !== process.env.ADMIN_SECRET) return res.status(403).json({ok:false});
-  res.json(withdrawals);
-});
-app.post('/api/admin/withdrawals/approve', (req,res) => {
-  if(req.body.secret !== process.env.ADMIN_SECRET) return res.status(403).json({ok:false});
-  const w = withdrawals.find(x => x.id == req.body.id);
-  if(w) w.status = "paid";
-  res.json({ok:true});
-});
-
-app.get('/admin', (req,res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
-app.get('*', (req,res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
-
-// Bot launch safely - won't crash server
-if(process.env.BOT_TOKEN){
-  const bot = new Telegraf(process.env.BOT_TOKEN);
-  bot.launch().then(()=>console.log("Bot launched")).catch(e=>console.log("Bot error:", e.message));
+const BOT_TOKEN = process.env.BOT_TOKEN;
+let bot;
+if(BOT_TOKEN){
+  bot = new Telegraf(BOT_TOKEN);
+  const MINI_APP_URL = process.env.MINI_APP_URL || 'https://ads-payout-1.onrender.com';
+  const CHANNEL = '@freeearningofusdt';
+  bot.start((ctx)=>{
+    const txt=`What can this bot do?\n\n💎 Why USDT Earn is Different\n\nMany bots promise to pay, but they don't.\nMany say 24 hours, but you wait forever.\n\nWe are different.\n\n⚡ At USDT Earn, withdrawals arrive in MINUTES.\n💰 Real USDT - TRC20 / BEP20\n✅ No delays, no stories\n\nPlease:\n🙏 No fake referrals\n🙏 Complete 20 tasks daily\n🙏 Stay active ${CHANNEL}\n\nReal users = Fast payments. Always`;
+    ctx.reply(txt, Markup.inlineKeyboard([[Markup.button.webApp('🚀 Launch Mini App', MINI_APP_URL)], [Markup.button.url('📢 Join Channel', `https://t.me/${CHANNEL.replace('@','')}`)]]));
+  });
+  bot.launch().then(()=>console.log('Bot running')).catch(e=>console.log('Bot launch error', e));
 }
 
-app.listen(process.env.PORT || 10000, () => console.log("Ads Payout Running"));
+let users = {};
+let tasks = [];
+let withdraws = [];
+try{ if(fs.existsSync('./data.json')) users = JSON.parse(fs.readFileSync('./data.json')); }catch(e){}
+try{ if(fs.existsSync('./tasks.json')) tasks = JSON.parse(fs.readFileSync('./tasks.json')); }catch(e){}
+try{ if(fs.existsSync('./withdraws.json')) withdraws = JSON.parse(fs.readFileSync('./withdraws.json')); }catch(e){}
+
+if(tasks.length===0){
+  tasks=[
+    {id:1, title:"WATCH AD #1", reward:"0.002", link:"ad1"},
+    {id:2, title:"WATCH AD #2", reward:"0.002", link:"ad2"},
+    {id:3, title:"JOIN @freeearningofusdt", reward:"0.01", link:"https://t.me/freeearningofusdt"}
+  ];
+}
+
+const save = ()=>fs.writeFileSync('./data.json', JSON.stringify(users));
+const saveTasks = ()=>fs.writeFileSync('./tasks.json', JSON.stringify(tasks));
+const saveWithdraws = ()=>fs.writeFileSync('./withdraws.json', JSON.stringify(withdraws));
+
+app.get('/api/user',(req,res)=>{
+  const id=req.query.userId;
+  const botUsername=process.env.BOT_USERNAME||'AdsPayoutBot';
+  if(!users[id]){ users[id]={balance:0,tasksCompleted:[],referralCount:0,referralLink:`https://t.me/${botUsername}?start=${id}`}; save(); }
+  res.json(users[id]);
+});
+
+app.get('/api/tasks',(req,res)=>res.json(tasks));
+
+app.post('/api/complete-task', async (req,res)=>{
+  const {userId, taskId}=req.body;
+  if(!users[userId]) users[userId]={balance:0,tasksCompleted:[],referralCount:0};
+  if(users[userId].tasksCompleted.includes(taskId)) return res.json({ok:false, msg:"Already claimed"});
+  const task=tasks.find(t=>t.id==taskId);
+  if(!task) return res.json({ok:false, msg:"Task not found"});
+  if(task.link && task.link.includes('t.me/')){
+    try{
+      let raw=task.link.replace('https://t.me/','').replace('http://t.me/','').replace('t.me/','').replace('@','');
+      let username=raw.split('/')[0].split('?')[0];
+      if(username && !username.includes('+') && !username.includes('joinchat') && BOT_TOKEN){
+        const chatId='@'+username;
+        const resp=await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getChatMember?chat_id=${chatId}&user_id=${userId}`);
+        const data=await resp.json();
+        if(!data.ok || ['left','kicked'].includes(data.result?.status)){
+          return res.json({ok:false, msg:`❌ You must JOIN ${chatId} first!`});
+        }
+      }
+    }catch(e){console.log(e);}
+  }
+  users[userId].tasksCompleted.push(taskId);
+  users[userId].balance+=parseFloat(task.reward);
+  save();
+  res.json({ok:true, balance:users[userId].balance});
+});
+
+app.post('/api/earn',(req,res)=>{
+  const {userId, amount}=req.body;
+  if(!users[userId]) users[userId]={balance:0,tasksCompleted:[],referralCount:0};
+  users[userId].balance+=parseFloat(amount);
+  save();
+  res.json({ok:true, balance:users[userId].balance});
+});
+
+app.post('/api/withdraw',(req,res)=>{
+  const {userId, wallet, cryptoType}=req.body;
+  if(!users[userId]) return res.json({ok:false, msg:"User not found"});
+  if(users[userId].balance<0.1) return res.json({ok:false, msg:"Min $0.10"});
+  if(!wallet) return res.json({ok:false, msg:"Enter wallet"});
+  const record={id:Date.now(),userId,amount:users[userId].balance,wallet,cryptoType,status:"Pending",date:new Date().toLocaleDateString()};
+  withdraws.push(record); saveWithdraws();
+  users[userId].balance=0; save();
+  res.json({ok:true, msg:"✅ Withdraw sent! Paid in minutes."});
+});
+
+app.get('/api/withdraws',(req,res)=>{
+  const id=req.query.userId;
+  res.json(withdraws.filter(w=>w.userId==id).reverse());
+});
+
+app.post('/api/add-task',(req,res)=>{
+  const {title,reward,link}=req.body;
+  tasks.push({id:Date.now(),title,reward,link});
+  saveTasks();
+  res.json({ok:true});
+});
+
+app.get('/',(req,res)=>res.sendFile(path.join(__dirname,'public','index.html')));
+app.listen(process.env.PORT||3000,()=>console.log('Running'));
