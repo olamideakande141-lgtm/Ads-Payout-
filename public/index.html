@@ -21,8 +21,8 @@ body{background:#0B0E1A;color:white;font-family:Inter,sans-serif}
 <div class="grid grid-cols-3 gap-2 mt-3"><div class="card rounded-[16px] py-4 text-center"><p class="text-[11px] text-gray-400">Tasks</p><p class="font-bold text-sm mt-1">1</p></div><div class="card rounded-[16px] py-4 text-center"><p class="text-[11px] text-gray-400">Streak</p><p class="font-bold text-sm mt-1">1</p></div><div class="card rounded-[16px] py-4 text-center"><p class="text-[11px] text-gray-400">Refs</p><p class="font-bold text-sm mt-1" id="refsCount">0</p></div></div>
 <div class="bg-[#8B7CF8] rounded-[20px] p-4 mt-3 flex justify-between items-center"><div><p class="font-bold text-sm">🔥 Daily Check-in</p><p class="text-[12px] opacity-80">Day 1 reward: 0.010 USDT</p></div><button onclick="checkIn()" class="bg-white text-[#8B7CF8] rounded-full px-6 py-2 text-sm font-bold">Check In</button></div>
 <p class="mt-6 mb-3 text-[11px] tracking-widest text-gray-500 font-bold">EARN TASKS</p>
-<div class="card rounded-[16px] p-4 relative"><span class="absolute top-3 right-20 bg-[#FF0000] text-white text-[8px] px-2 py-1 rounded-full">HOT</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF8C00] rounded-full flex items-center justify-center"><i class="fas fa-play text-xs"></i></div><div><p class="font-black text-[13px]">WATCH AD #1</p><p class="text-[11px] text-[#8B7CF8]">💎 0.005 USDT</p></div></div><button onclick="watchAd1()" class="bg-[#2A3452] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#9B8CFF]"><span id="ad1Completed">0</span> / 20 Completed</p><p class="text-gray-500"><span id="ad1Remaining">20</span> Remaining</p></div></div>
-<div class="card rounded-[16px] p-4 relative mt-3"><span class="absolute top-3 right-20 bg-[#FF8C42] text-white text-[8px] px-2 py-1 rounded-full">SPECIAL</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF8C42] rounded-full flex items-center justify-center"><i class="fas fa-crown text-xs"></i></div><div><p class="font-black text-[13px]">SPECIAL AD TASK #1</p><p class="text-[11px] text-[#8B7CF8]">💎 0.01 USDT</p></div></div><button onclick="watchAd3()" class="bg-[#FF8C42] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#FF8C42]"><span id="ad3Completed">0</span> / 20 Completed</p><p class="text-gray-500"><span id="ad3Remaining">20</span> Remaining</p></div></div>
+<div class="card rounded-[16px] p-4 relative"><span class="absolute top-3 right-20 bg-[#FF0000] text-white text-[8px] px-2 py-1 rounded-full">HOT</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF8C00] rounded-full flex items-center justify-center"><i class="fas fa-play text-xs"></i></div><div><p class="font-black text-[13px]">WATCH AD #1</p><p class="text-[11px] text-[#8B7CF8]">💎 0.005 USDT</p></div></div><button onclick="watchAd1()" class="bg-[#2A3452] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#9B8CFF]"><span id="ad1Completed">0</span> / 20</p><p class="text-gray-500"><span id="ad1Remaining">20</span> left</p></div></div>
+<div class="card rounded-[16px] p-4 relative mt-3"><span class="absolute top-3 right-20 bg-[#FF8C42] text-white text-[8px] px-2 py-1 rounded-full">SPECIAL</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF8C42] rounded-full flex items-center justify-center"><i class="fas fa-crown text-xs"></i></div><div><p class="font-black text-[13px]">SPECIAL AD #1</p><p class="text-[11px] text-[#8B7CF8]">💎 0.01 USDT</p></div></div><button onclick="watchAd3()" class="bg-[#FF8C42] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#FF8C42]"><span id="ad3Completed">0</span> / 20</p><p class="text-gray-500"><span id="ad3Remaining">20</span> left</p></div></div>
 </div>
 
 <div id="tab-earn" class="hidden p-3">
@@ -31,9 +31,41 @@ body{background:#0B0E1A;color:white;font-family:Inter,sans-serif}
 <div class="card rounded-[16px] p-4 relative mt-3"><span class="absolute top-3 right-20 bg-[#FF8C42] text-white text-[8px] px-2 py-1 rounded-full">SPECIAL</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF8C42] rounded-full flex items-center justify-center"><i class="fas fa-crown"></i></div><div><p class="font-black text-[13px]">SPECIAL AD #1</p><p class="text-[11px] text-[#8B7CF8]">💎 0.01</p></div></div><button onclick="watchAd3()" class="bg-[#FF8C42] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#FF8C42]"><span id="ad3Completed2">0</span> / 20</p><p class="text-gray-500"><span id="ad3Remaining2">20</span> left</p></div></div>
 </div>
 
+<!-- REFER - VALID + $0.025 + 2 DAYS TRACKING + STATS -->
 <div id="tab-refer" class="hidden p-3">
-<div class="card rounded-[20px] p-4"><p class="font-bold text-sm">Referral Link</p><div class="bg-[#0B0E1A] rounded-full p-2 mt-2 flex items-center gap-2"><p id="refLink" class="text-[11px] text-gray-400 flex-1 truncate px-2"></p><button onclick="copyRef()" class="bg-[#8B7CF8] rounded-full px-5 py-2 text-xs font-bold">Copy Link</button></div><p class="text-[11px] text-gray-500 mt-2">Share and earn 10% forever!</p></div>
-<div class="card rounded-[20px] p-4 mt-3"><p class="font-bold text-sm">Leaderboard Live 👑 <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse inline-block"></span></p><div class="mt-3 space-y-2 text-xs"><div class="flex justify-between"><span>1. Top earner - $12.50</span><span>🥇</span></div><div class="flex justify-between text-gray-400"><span>2. Second - $8.30</span><span>🥈</span></div></div></div>
+<div class="card rounded-[20px] p-4">
+<p class="font-bold text-sm">Referral Link</p>
+<div class="bg-[#0B0E1A] rounded-full p-2 mt-2 flex items-center gap-2">
+<p id="refLink" class="text-[11px] text-gray-400 flex-1 truncate px-2"></p>
+<button onclick="copyRef()" class="bg-[#8B7CF8] rounded-full px-5 py-2 text-xs font-bold">Copy Link</button>
+</div>
+<p class="text-[11px] text-[#00D492] mt-2">💰 Earn $0.025 per valid referral</p>
+<p class="text-[10px] text-gray-500 mt-1">Referral valid only if they complete ALL ads (AD1 20 + AD2 15 + SPECIAL 20) for 2 days</p>
+</div>
+
+<!-- REFERRAL STATISTICS -->
+<div class="grid grid-cols-3 gap-2 mt-3">
+<div class="card rounded-[16px] p-3 text-center"><p class="text-[10px] text-gray-400">Total Invited</p><p class="font-black text-lg" id="statTotal">0</p></div>
+<div class="card rounded-[16px] p-3 text-center"><p class="text-[10px] text-[#FF8C42]">Pending (2 days)</p><p class="font-black text-lg" id="statPending">0</p></div>
+<div class="card rounded-[16px] p-3 text-center"><p class="text-[10px] text-[#00D492]">Valid</p><p class="font-black text-lg" id="statValid">0</p></div>
+</div>
+<div class="grid grid-cols-2 gap-2 mt-2">
+<div class="card rounded-[16px] p-3 text-center"><p class="text-[10px] text-gray-400">Referral Earnings</p><p class="font-black text-sm text-[#00D492]">$<span id="statEarnings">0.000</span></p></div>
+<div class="card rounded-[16px] p-3 text-center"><p class="text-[10px] text-gray-400">Conversion Rate</p><p class="font-black text-sm"><span id="statRate">0</span>%</p></div>
+</div>
+
+<!-- REFERRAL TRACKING -->
+<div class="card rounded-[20px] p-4 mt-3">
+<p class="font-bold text-sm flex justify-between"><span>Referral Tracking 🔍</span><span class="text-[10px] bg-[#0B0E1A] px-2 py-1 rounded-full" id="trackingStatus">Live tracking</span></p>
+<div id="referralList" class="mt-3 space-y-2">
+<div class="text-center py-6 text-[11px] text-gray-500">No referrals yet. Share your link!<br><br><p class="text-[10px]">Bot will track: Day 1 ✅ + Day 2 ✅ = $0.025</p></div>
+</div>
+</div>
+
+<div class="card rounded-[20px] p-4 mt-3">
+<p class="font-bold text-sm">Leaderboard Live 👑 <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse inline-block"></span></p>
+<div class="mt-3 space-y-2 text-xs"><div class="flex justify-between"><span>1. Top earner - $12.50</span><span>🥇</span></div><div class="flex justify-between text-gray-400"><span>2. Second - $8.30</span><span>🥈</span></div></div>
+</div>
 </div>
 
 <div id="tab-account" class="hidden p-3">
@@ -41,25 +73,21 @@ body{background:#0B0E1A;color:white;font-family:Inter,sans-serif}
 <div class="card rounded-[20px] p-4 mt-3 flex items-center gap-3"><div class="w-12 h-12 bg-[#2AFFF0] rounded-full flex items-center justify-center text-[#1A1F36] font-black">U</div><div class="flex-1"><p class="font-bold text-sm">User 💬 <span class="bg-[#2A3452] text-[10px] px-2 py-1 rounded-full ml-2">Telegram</span></p><p class="text-xs text-gray-400" id="userHandle">@user_... </p><p class="text-[11px] bg-[#0B0E1A] px-2 py-1 rounded-full mt-1 inline-block">ID: <span id="userIdDisplay">...</span></p></div></div>
 <div class="grid grid-cols-3 gap-2 mt-3"><div class="bg-[#8B7CF8] rounded-[16px] p-4 text-center" onclick="switchTab('home')"><i class="fas fa-bolt"></i><p class="font-bold text-xs mt-1">Earn</p></div><div class="bg-[#0E9D6E] rounded-[16px] p-4 text-center" onclick="openWithdraw()"><i class="fas fa-money-bill"></i><p class="font-bold text-xs mt-1">Withdraw</p></div><div class="bg-[#6B5CFF] rounded-[16px] p-4 text-center" onclick="switchTab('refer')"><i class="fas fa-gift"></i><p class="font-bold text-xs mt-1">Refer & Earn</p></div></div>
 <div class="card rounded-[16px] p-4 mt-3"><p class="font-bold text-sm">Total Balance</p><h2 class="text-2xl font-black mt-1">$<span id="balanceAccount">0.0200</span></h2><button onclick="openWithdraw()" class="bg-[#8B7CF8] w-full mt-3 py-3 rounded-full font-bold text-sm">Withdraw</button></div>
-<div class="bg-[#FFF3CD] border border-[#FFD60A] rounded-[16px] p-4 mt-3"><p class="text-[#664D03] font-bold text-xs">📢 Notice Board</p><p class="text-[#664D03] text-[11px] mt-1">• Withdrawals take a few seconds to arrive after approval.<br>• 20% withdrawal fee applies.<br>• Minimum withdrawal: $5.00 USDT<br>• Networks: BEP20 & TRC20</p></div>
+<div class="bg-[#FFF3CD] border border-[#FFD60A] rounded-[16px] p-4 mt-3"><p class="text-[#664D03] font-bold text-xs">📢 Notice Board</p><p class="text-[#664D03] text-[11px] mt-1">• Withdrawals take a few seconds to arrive.<br>• 20% fee | Min $5 | BEP20 & TRC20<br>• Referral: $0.025 after 2 days full completion</p></div>
 </div>
 
-<!-- WITHDRAW MODAL - MIN $5 + BEP20 -->
 <div id="withdraw-modal" class="hidden fixed inset-0 bg-black/80 z-[60] flex items-center justify-center p-4">
 <div class="bg-[#1A1F36] rounded-[24px] w-full max-w-sm p-5">
 <div class="flex justify-between items-center"><p class="font-bold">Withdraw USDT</p><button onclick="closeWithdraw()" class="w-8 h-8 bg-[#0B0E1A] rounded-full"><i class="fas fa-times"></i></button></div>
 <div class="mt-4 bg-[#0B0E1A] rounded-[12px] p-3"><p class="text-[11px] text-gray-400">Available</p><p class="font-black text-lg">$<span id="withdrawBalance">0.0200</span></p></div>
-
 <p class="text-[11px] text-gray-400 mt-3 mb-1">Select Network</p>
 <div class="grid grid-cols-2 gap-2">
-<button id="btn-bep20" onclick="selectNetwork('BEP20')" class="bg-[#8B7CF8] border border-[#8B7CF8] rounded-[12px] p-3 text-xs font-bold">BEP20<br><span class="text-[9px] opacity-70">BSC - Low Fee</span></button>
+<button id="btn-bep20" onclick="selectNetwork('BEP20')" class="bg-[#8B7CF8] border border-[#8B7CF8] rounded-[12px] p-3 text-xs font-bold">BEP20<br><span class="text-[9px] opacity-70">BSC</span></button>
 <button id="btn-trc20" onclick="selectNetwork('TRC20')" class="bg-[#0B0E1A] border border-[#2A3452] rounded-[12px] p-3 text-xs font-bold">TRC20<br><span class="text-[9px] opacity-70">Tron</span></button>
 </div>
-
-<input id="withdrawAddress" placeholder="Your USDT address" class="w-full mt-3 bg-[#0B0E1A] border border-[#2A3452] p-3 rounded-[12px] text-sm outline-none"/>
+<input id="withdrawAddress" placeholder="Your BEP20 address (0x...)" class="w-full mt-3 bg-[#0B0E1A] border border-[#2A3452] p-3 rounded-[12px] text-sm outline-none"/>
 <input id="withdrawAmount" type="number" placeholder="Amount (min $5)" class="w-full mt-2 bg-[#0B0E1A] border border-[#2A3452] p-3 rounded-[12px] text-sm outline-none"/>
-<div class="bg-[#151A2E] rounded-[12px] p-3 mt-3 text-[11px]"><div class="flex justify-between"><span class="text-gray-400">Fee (20%)</span><span id="feeAmount">$0.00</span></div><div class="flex justify-between mt-1 font-bold"><span>You will receive (<span id="networkLabel">BEP20</span>)</span><span id="receiveAmount" class="text-[#00D492]">$0.00</span></div></div>
-<div class="bg-[#FFF3CD] rounded-[12px] p-3 mt-3 text-[10px] text-[#664D03]">⚠️ Min $5 | 20% fee | Takes a few seconds to arrive | Check address & network!</div>
+<div class="bg-[#151A2E] rounded-[12px] p-3 mt-3 text-[11px]"><div class="flex justify-between"><span class="text-gray-400">Fee (20%)</span><span id="feeAmount">$0.00</span></div><div class="flex justify-between mt-1 font-bold"><span>You receive (<span id="networkLabel">BEP20</span>)</span><span id="receiveAmount" class="text-[#00D492]">$0.00</span></div></div>
 <button onclick="submitWithdraw()" class="bg-[#8B7CF8] w-full mt-4 py-3 rounded-full font-bold text-sm">Confirm Withdrawal</button>
 </div>
 </div>
@@ -67,9 +95,9 @@ body{background:#0B0E1A;color:white;font-family:Inter,sans-serif}
 <div id="ai-float" class="fixed bottom-24 left-4 z-40"><button onclick="openAI()" class="w-14 h-14 bg-[#8B7CF8] rounded-full shadow-lg flex items-center justify-center"><i class="fas fa-robot"></i></button></div>
 <div id="ai-modal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-end">
 <div class="bg-[#1A1F36] w-full rounded-t-[24px] h-[75%] flex flex-col">
-<div class="flex justify-between items-center p-4 border-b border-[#2A3452]"><div><p class="font-bold">🤖 AI Support</p><p class="text-[10px] text-green-400">● Online • Instant reply</p></div><button onclick="closeAI()" class="w-8 h-8 bg-[#0B0E1A] rounded-full"><i class="fas fa-times"></i></button></div>
-<div id="ai-chat" class="flex-1 overflow-y-auto p-4 space-y-3"><div class="bg-[#0B0E1A] rounded-[16px] p-3 text-sm">Hi! I'm Ads Payout AI 🤖<br>Withdrawal: BEP20 & TRC20, min $5, 20% fee, arrives in seconds.<br>What do you need?</div></div>
-<div class="p-3 border-t border-[#2A3452] flex gap-2"><input id="ai-input" placeholder="Ask me anything..." class="flex-1 bg-[#0B0E1A] p-3 rounded-full text-sm outline-none" onkeypress="if(event.key==='Enter')sendAI()"/><button onclick="sendAI()" class="bg-[#8B7CF8] w-12 h-12 rounded-full"><i class="fas fa-paper-plane"></i></button></div>
+<div class="flex justify-between items-center p-4 border-b border-[#2A3452]"><div><p class="font-bold">🤖 AI Support</p><p class="text-[10px] text-green-400">● Online</p></div><button onclick="closeAI()" class="w-8 h-8 bg-[#0B0E1A] rounded-full"><i class="fas fa-times"></i></button></div>
+<div id="ai-chat" class="flex-1 overflow-y-auto p-4 space-y-3"><div class="bg-[#0B0E1A] rounded-[16px] p-3 text-sm">Referral system: $0.025 per valid referral after they complete ALL ads for 2 days. Bot tracks automatically!</div></div>
+<div class="p-3 border-t border-[#2A3452] flex gap-2"><input id="ai-input" placeholder="Ask..." class="flex-1 bg-[#0B0E1A] p-3 rounded-full text-sm outline-none" onkeypress="if(event.key==='Enter')sendAI()"/><button onclick="sendAI()" class="bg-[#8B7CF8] w-12 h-12 rounded-full"><i class="fas fa-paper-plane"></i></button></div>
 </div>
 </div>
 
@@ -83,7 +111,32 @@ body{background:#0B0E1A;color:white;font-family:Inter,sans-serif}
 <script>
 const API=''; let userId=localStorage.getItem('uid')||'user_'+Math.random().toString(36).substr(2,9); localStorage.setItem('uid',userId); let selectedNetwork='BEP20';
 function switchTab(t){document.querySelectorAll('[id^="tab-"]').forEach(e=>e.classList.add('hidden'));document.getElementById('tab-'+t).classList.remove('hidden');document.querySelectorAll('[id^="nav-"]').forEach(e=>{e.classList.remove('nav-active');e.classList.add('text-gray-500')});document.getElementById('nav-'+t).classList.add('nav-active');document.getElementById('nav-'+t).classList.remove('text-gray-500');}
-async function loadUser(){try{let res=await fetch(`${API}/api/user?userId=${userId}`);let d=await res.json();let bal=d.balance||0.02;document.getElementById('balanceMain').innerText=bal.toFixed(4);document.getElementById('balanceUSDT').innerText=bal.toFixed(4);document.getElementById('balanceUSDT2').innerText=bal.toFixed(4);document.getElementById('balance2').innerText=bal.toFixed(4);document.getElementById('balanceAccount').innerText=bal.toFixed(4);document.getElementById('withdrawBalance').innerText=bal.toFixed(4);document.getElementById('userIdDisplay').innerText=userId.slice(0,12);document.getElementById('userHandle').innerText='@'+userId;let a1=d.ad1Count||0,a2=d.ad2Count||0,a3=d.ad3Count||0;document.getElementById('ad1Completed').innerText=a1;document.getElementById('ad1Remaining').innerText=20-a1;document.getElementById('ad1Completed2').innerText=a1;document.getElementById('ad1Remaining2').innerText=20-a1;document.getElementById('ad2Completed').innerText=a2;document.getElementById('ad2Remaining').innerText=15-a2;document.getElementById('ad3Completed').innerText=a3;document.getElementById('ad3Remaining').innerText=20-a3;document.getElementById('ad3Completed2').innerText=a3;document.getElementById('ad3Remaining2').innerText=20-a3;let link=window.location.origin+'?ref='+userId;document.getElementById('refLink').innerText=link;document.getElementById('refsCount').innerText=d.refs||0;}catch(e){let link=window.location.origin+'?ref='+userId;document.getElementById('refLink').innerText=link;}}
+async function loadUser(){
+try{
+let res=await fetch(`${API}/api/user?userId=${userId}`); let d=await res.json();
+let bal=d.balance||0.02;
+document.getElementById('balanceMain').innerText=bal.toFixed(4);document.getElementById('balanceUSDT').innerText=bal.toFixed(4);document.getElementById('balanceUSDT2').innerText=bal.toFixed(4);document.getElementById('balance2').innerText=bal.toFixed(4);document.getElementById('balanceAccount').innerText=bal.toFixed(4);document.getElementById('withdrawBalance').innerText=bal.toFixed(4);
+document.getElementById('userIdDisplay').innerText=userId.slice(0,12);document.getElementById('userHandle').innerText='@'+userId;
+let a1=d.ad1Count||0,a2=d.ad2Count||0,a3=d.ad3Count||0;
+document.getElementById('ad1Completed').innerText=a1;document.getElementById('ad1Remaining').innerText=20-a1;document.getElementById('ad1Completed2').innerText=a1;document.getElementById('ad1Remaining2').innerText=20-a1;document.getElementById('ad2Completed').innerText=a2;document.getElementById('ad2Remaining').innerText=15-a2;document.getElementById('ad3Completed').innerText=a3;document.getElementById('ad3Remaining').innerText=20-a3;document.getElementById('ad3Completed2').innerText=a3;document.getElementById('ad3Remaining2').innerText=20-a3;
+let link=window.location.origin+'?ref='+userId;document.getElementById('refLink').innerText=link;document.getElementById('refsCount').innerText=d.referrals?.length||0;
+
+// REFERRAL STATS
+let refs=d.referrals||[]; // [{id, day1Complete, day2Complete, valid, date}]
+let total=refs.length; let valid=refs.filter(r=>r.valid).length; let pending=total-valid; let earnings=valid*0.025;
+document.getElementById('statTotal').innerText=total; document.getElementById('statPending').innerText=pending; document.getElementById('statValid').innerText=valid; document.getElementById('statEarnings').innerText=earnings.toFixed(3); document.getElementById('statRate').innerText=total?Math.round(valid/total*100):0;
+
+// REFERRAL TRACKING LIST
+let list=document.getElementById('referralList');
+if(total>0){
+list.innerHTML=refs.map((r,i)=>{
+let day1Icon=r.day1Complete?'✅':'⏳'; let day2Icon=r.day2Complete?'✅':'⏳'; let status=r.valid?'✅ VALID - $0.025 Paid':'⏳ Pending 2-day check';
+let barWidth=(r.day1Complete?50:0)+(r.day2Complete?50:0);
+return `<div class="bg-[#0B0E1A] rounded-[12px] p-3"><div class="flex justify-between text-[11px]"><span class="font-bold">User ${r.id.slice(0,6)}...</span><span class="text-[9px] ${r.valid?'text-[#00D492]':'text-[#FF8C42]'}">${status}</span></div><div class="flex gap-2 mt-2 text-[10px]"><span class="${r.day1Complete?'text-[#00D492]':''}">Day 1: ${day1Icon} All Ads</span><span class="${r.day2Complete?'text-[#00D492]':''}">Day 2: ${day2Icon} All Ads</span></div><div class="w-full bg-[#1A1F36] h-1 rounded-full mt-2"><div class="h-1 bg-[#8B7CF8] rounded-full" style="width:${barWidth}%"></div></div></div>`;
+}).join('');
+}
+}catch(e){let link=window.location.origin+'?ref='+userId;document.getElementById('refLink').innerText=link;}
+}
 async function doEarn(amount,type){let res=await fetch(`${API}/api/earn`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId,adType:type,amount})});let d=await res.json();if(!d.ok){alert(d.msg);return;}loadUser();}
 async function watchAd1(){window.open('https://ads-galaxy.com','_blank');await new Promise(r=>setTimeout(r,2000));doEarn(0.005,'ad1');}
 async function watchAd2(){window.open('https://ads-galaxy.com','_blank');await new Promise(r=>setTimeout(r,2000));doEarn(0.005,'ad2');}
@@ -92,28 +145,14 @@ function checkIn(){doEarn(0.01,'checkin'); alert('Checked in +0.010 USDT');}
 function openWithdraw(){document.getElementById('withdraw-modal').classList.remove('hidden')}function closeWithdraw(){document.getElementById('withdraw-modal').classList.add('hidden')}
 function selectNetwork(net){selectedNetwork=net;document.getElementById('networkLabel').innerText=net;document.getElementById('btn-bep20').className=net==='BEP20'?'bg-[#8B7CF8] border border-[#8B7CF8] rounded-[12px] p-3 text-xs font-bold':'bg-[#0B0E1A] border border-[#2A3452] rounded-[12px] p-3 text-xs font-bold';document.getElementById('btn-trc20').className=net==='TRC20'?'bg-[#8B7CF8] border border-[#8B7CF8] rounded-[12px] p-3 text-xs font-bold':'bg-[#0B0E1A] border border-[#2A3452] rounded-[12px] p-3 text-xs font-bold';document.getElementById('withdrawAddress').placeholder=net==='BEP20'?'Your BEP20 address (0x...)' :'Your TRC20 address (T...)' ;}
 document.getElementById('withdrawAmount')?.addEventListener('input',(e)=>{let v=parseFloat(e.target.value)||0;let fee=v*0.20;let receive=v-fee;document.getElementById('feeAmount').innerText='$'+fee.toFixed(4);document.getElementById('receiveAmount').innerText='$'+receive.toFixed(4);});
-async function submitWithdraw(){
-let addr=document.getElementById('withdrawAddress').value.trim(); let amt=parseFloat(document.getElementById('withdrawAmount').value);
-if(!addr){alert('Enter wallet address'); return;} if(!amt || amt<5){alert('Minimum $5 required'); return;}
-let bal=parseFloat(document.getElementById('balanceAccount').innerText); if(amt>bal){alert('Insufficient balance'); return;}
-try{let res=await fetch(`${API}/api/withdraw`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId,amount:amt,address:addr,network:selectedNetwork})});let d=await res.json();if(!d.ok){alert(d.msg||'Failed'); return;} alert(`✅ Withdrawal requested!\n\nNetwork: ${selectedNetwork}\nAmount: $${amt}\nFee (20%): $${(amt*0.2).toFixed(2)}\nYou receive: $${(amt*0.8).toFixed(2)}\n\nMin: $5 | Arrives in seconds after approval.`); closeWithdraw(); loadUser();} catch(e){alert(`✅ Withdrawal queued! ${selectedNetwork} $${amt} will arrive in seconds. 20% fee applied.`); closeWithdraw();}
-}
+async function submitWithdraw(){let addr=document.getElementById('withdrawAddress').value.trim(); let amt=parseFloat(document.getElementById('withdrawAmount').value);if(!addr){alert('Enter wallet address'); return;} if(!amt || amt<5){alert('Minimum $5 required'); return;}let bal=parseFloat(document.getElementById('balanceAccount').innerText); if(amt>bal){alert('Insufficient balance'); return;}try{let res=await fetch(`${API}/api/withdraw`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId,amount:amt,address:addr,network:selectedNetwork})});let d=await res.json();if(!d.ok){alert(d.msg||'Failed'); return;} alert(`✅ Withdrawal requested! ${selectedNetwork} $${amt} → Receive $${(amt*0.8).toFixed(2)} after 20% fee.`); closeWithdraw(); loadUser();} catch(e){alert(`✅ Withdrawal queued! ${selectedNetwork} $${amt} will arrive in seconds.`); closeWithdraw();}}
 function openAI(){document.getElementById('ai-modal').classList.remove('hidden')}function closeAI(){document.getElementById('ai-modal').classList.add('hidden')}
-function sendAI(){
-let input=document.getElementById('ai-input'); let msg=input.value.trim(); if(!msg) return;
-let chat=document.getElementById('ai-chat'); let bal=document.getElementById('balanceMain').innerText;
-chat.innerHTML+=`<div class="bg-[#8B7CF8] rounded-[16px] p-3 text-sm ml-8 text-right">${msg}</div>`; input.value=''; chat.scrollTop=chat.scrollHeight;
-setTimeout(()=>{
-let lower=msg.toLowerCase(); let reply='';
-if(lower.match(/withdraw|min|bep20|trc20/)) reply=`Withdrawal methods:\n• BEP20 (BSC) - Address starts with 0x... Low fee\n• TRC20 (Tron) - Address starts with T...\n\nRules:\n• Min: $5 USDT\n• Fee: 20%\n• Takes a few seconds to arrive after approval\n\nSelect network in withdraw modal, enter address & amount.`;
-else if(lower.match(/fee/)) reply=`20% fee on all withdrawals. Example: $10 → Fee $2 → Receive $8 on ${selectedNetwork}.`;
-else if(lower.match(/balance/)) reply=`Your balance $${bal}. Need $${(5-parseFloat(bal)).toFixed(4)} more to reach min $5 withdrawal.`;
-else reply=`Hi boss! Balance $${bal}. Withdraw: BEP20 & TRC20, min $5, 20% fee, arrives in seconds. Choose network in Account > Withdraw.`;
-chat.innerHTML+=`<div class="bg-[#0B0E1A] rounded-[16px] p-3 text-sm whitespace-pre-line">🤖 ${reply}</div>`; chat.scrollTop=chat.scrollHeight;
-},500);
-}
-function copyRef(){navigator.clipboard.writeText(document.getElementById('refLink').innerText); alert('Referral link copied! ✅');}
+function sendAI(){let input=document.getElementById('ai-input'); let msg=input.value.trim(); if(!msg) return;let chat=document.getElementById('ai-chat'); let bal=document.getElementById('balanceMain').innerText;chat.innerHTML+=`<div class="bg-[#8B7CF8] rounded-[16px] p-3 text-sm ml-8 text-right">${msg}</div>`; input.value=''; setTimeout(()=>{let lower=msg.toLowerCase(); let reply=lower.includes('refer')?`Referral system:\n• You earn $0.025 per VALID referral\n• Valid = referral completes ALL ads (20 AD1 + 15 AD2 + 20 SPECIAL) for 2 DAYS\n• Bot tracks automatically:\n  Day 1 complete ✅ + Day 2 complete ✅ = $0.025 credited\n• Check Refer tab > Tracking to see progress\n• Current: ${document.getElementById('statValid').innerText} valid, ${document.getElementById('statPending').innerText} pending`:lower.includes('withdraw')?`Withdraw: BEP20 & TRC20, min $5, 20% fee, arrives in seconds.`:lower.includes('balance')?`Balance $${bal}, Referral earnings $${document.getElementById('statEarnings').innerText}`:`Referral $0.025 after 2 days full ads. Withdraw min $5 BEP20/TRC20.`;chat.innerHTML+=`<div class="bg-[#0B0E1A] rounded-[16px] p-3 text-sm whitespace-pre-line">🤖 ${reply}</div>`; chat.scrollTop=chat.scrollHeight;},500);}
+function copyRef(){navigator.clipboard.writeText(document.getElementById('refLink').innerText); alert('Referral link copied! Earn $0.025 per valid referral (2 days completion)');}
 loadUser(); selectNetwork('BEP20');
+
+// HANDLE REFERRAL PARAM
+let urlParams=new URLSearchParams(window.location.search); let refBy=urlParams.get('ref'); if(refBy && refBy!==userId){localStorage.setItem('referredBy',refBy); fetch(`${API}/api/referral-join`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId,referredBy:refBy})});}
 </script>
 </body>
 </html>
