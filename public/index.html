@@ -5,6 +5,7 @@
 <title>Ads Payout</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://app.adsgalaxy.online/sdk.js?id=139"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 body{background:#0B0E1A;color:white;font-family:Inter,sans-serif}
@@ -14,13 +15,10 @@ body{background:#0B0E1A;color:white;font-family:Inter,sans-serif}
 </style>
 </head>
 <body class="pb-24">
-
 <div class="flex justify-between items-center p-4"><p class="font-bold">Ads Payout 💎</p><button class="bg-[#1A1F36] text-xs px-3 py-1 rounded-full border border-[#2A3452]">USDT</button></div>
-
 <div id="tab-home" class="p-3">
 <div class="card rounded-[20px] p-5 flex justify-between items-center"><div><p class="text-[11px] tracking-[2px] text-gray-400">YOUR BALANCE</p><h1 class="text-5xl font-black mt-1" id="balanceMain">0.0500</h1><p class="text-sm text-[#00D492] mt-1">≈$<span id="balanceUSDT">0.0500</span> USDT</p></div><div class="w-16 h-16 bg-gradient-to-br from-[#8B7CF8] to-[#6B5CFF] rounded-[16px] flex items-center justify-center text-3xl">💎</div></div>
 <div class="grid grid-cols-3 gap-2 mt-3"><div class="card rounded-[16px] py-4 text-center"><p class="text-[11px] text-gray-400">Tasks</p><p class="font-bold text-sm mt-1">1</p></div><div class="card rounded-[16px] py-4 text-center"><p class="text-[11px] text-gray-400">Streak</p><p class="font-bold text-sm mt-1" id="streakDisplay">0</p></div><div class="card rounded-[16px] py-4 text-center"><p class="text-[11px] text-gray-400">Refs</p><p class="font-bold text-sm mt-1" id="refsCount">0</p></div></div>
-
 <div class="bg-[#8B7CF8] rounded-[20px] p-4 mt-3 flex justify-between items-center">
 <div>
 <p class="font-bold text-sm">🔥 Daily Check-in</p>
@@ -28,18 +26,15 @@ body{background:#0B0E1A;color:white;font-family:Inter,sans-serif}
 </div>
 <button id="checkInBtn" onclick="checkIn()" class="bg-white text-[#8B7CF8] rounded-full px-6 py-2 text-sm font-bold">Check In (0/10)</button>
 </div>
-
-<p class="mt-6 mb-3 text-[11px] tracking-widest text-gray-500 font-bold">EARN TASKS</p>
-<div class="card rounded-[16px] p-4 relative"><span class="absolute top-3 right-20 bg-[#FF0000] text-white text-[8px] px-2 py-1 rounded-full">HOT</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF8C00] rounded-full flex items-center justify-center"><i class="fas fa-play text-xs"></i></div><div><p class="font-black text-[13px]">WATCH AD #1</p><p class="text-[11px] text-[#8B7CF8]">💎 0.005 USDT</p></div></div><button onclick="watchAd1()" class="bg-[#2A3452] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#9B8CFF]"><span id="ad1Completed">0</span> / 20</p><p class="text-gray-500"><span id="ad1Remaining">20</span> left</p></div></div>
-<div class="card rounded-[16px] p-4 relative mt-3"><span class="absolute top-3 right-20 bg-[#FF8C42] text-white text-[8px] px-2 py-1 rounded-full">SPECIAL</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF8C42] rounded-full flex items-center justify-center"><i class="fas fa-crown text-xs"></i></div><div><p class="font-black text-[13px]">SPECIAL AD #1</p><p class="text-[11px] text-[#8B7CF8]">💎 0.01 USDT</p></div></div><button onclick="watchAd3()" class="bg-[#FF8C42] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#FF8C42]"><span id="ad3Completed">0</span> / 20</p><p class="text-gray-500"><span id="ad3Remaining">20</span> left</p></div></div>
+<p class="mt-6 mb-3 text-[11px] tracking-widest text-gray-500 font-bold">EARN TASKS - ADS GALAXY</p>
+<div class="card rounded-[16px] p-4 relative"><span class="absolute top-3 right-20 bg-[#FF0000] text-white text-[8px] px-2 py-1 rounded-full">HOT • GALAXY</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF8C00] rounded-full flex items-center justify-center"><i class="fas fa-play text-xs"></i></div><div><p class="font-black text-[13px]">WATCH AD #1</p><p class="text-[11px] text-[#8B7CF8]">💎 0.005 USDT</p></div></div><button onclick="watchAd1()" class="bg-[#2A3452] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#9B8CFF]"><span id="ad1Completed">0</span> / 20</p><p class="text-gray-500"><span id="ad1Remaining">20</span> left</p></div></div>
+<div class="card rounded-[16px] p-4 relative mt-3"><span class="absolute top-3 right-20 bg-[#FF8C42] text-white text-[8px] px-2 py-1 rounded-full">SPECIAL • 5/DAY</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF8C42] rounded-full flex items-center justify-center"><i class="fas fa-crown text-xs"></i></div><div><p class="font-black text-[13px]">SPECIAL AD #1</p><p class="text-[11px] text-[#8B7CF8]">💎 0.01 USDT • 5 per day</p></div></div><button onclick="watchAd3()" class="bg-[#FF8C42] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#FF8C42]"><span id="ad3Completed">0</span> / 5</p><p class="text-gray-500"><span id="ad3Remaining">5</span> left</p></div></div>
 </div>
-
 <div id="tab-earn" class="hidden p-3">
 <div class="card rounded-[16px] p-4 relative"><span class="absolute top-3 right-20 bg-[#FF0000] text-white text-[8px] px-2 py-1 rounded-full">HOT</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF8C00] rounded-full flex items-center justify-center"><i class="fas fa-play"></i></div><div><p class="font-black text-[13px]">WATCH AD #1</p><p class="text-[11px] text-[#8B7CF8]">💎 0.005</p></div></div><button onclick="watchAd1()" class="bg-[#2A3452] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#9B8CFF]"><span id="ad1Completed2">0</span> / 20</p><p class="text-gray-500"><span id="ad1Remaining2">20</span> left</p></div></div>
 <div class="card rounded-[16px] p-4 relative mt-3"><span class="absolute top-3 right-20 bg-[#FF0000] text-white text-[8px] px-2 py-1 rounded-full">HOT</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF5E00] rounded-full flex items-center justify-center"><i class="fas fa-play"></i></div><div><p class="font-black text-[13px]">WATCH AD #2</p><p class="text-[11px] text-[#8B7CF8]">💎 0.005</p></div></div><button onclick="watchAd2()" class="bg-[#2A3452] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#9B8CFF]"><span id="ad2Completed">0</span> / 15</p><p class="text-gray-500"><span id="ad2Remaining">15</span> left</p></div></div>
-<div class="card rounded-[16px] p-4 relative mt-3"><span class="absolute top-3 right-20 bg-[#FF8C42] text-white text-[8px] px-2 py-1 rounded-full">SPECIAL</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF8C42] rounded-full flex items-center justify-center"><i class="fas fa-crown"></i></div><div><p class="font-black text-[13px]">SPECIAL AD #1</p><p class="text-[11px] text-[#8B7CF8]">💎 0.01</p></div></div><button onclick="watchAd3()" class="bg-[#FF8C42] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#FF8C42]"><span id="ad3Completed2">0</span> / 20</p><p class="text-gray-500"><span id="ad3Remaining2">20</span> left</p></div></div>
+<div class="card rounded-[16px] p-4 relative mt-3"><span class="absolute top-3 right-20 bg-[#FF8C42] text-white text-[8px] px-2 py-1 rounded-full">SPECIAL 5/DAY</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF8C42] rounded-full flex items-center justify-center"><i class="fas fa-crown"></i></div><div><p class="font-black text-[13px]">SPECIAL AD #1</p><p class="text-[11px] text-[#8B7CF8]">💎 0.01</p></div></div><button onclick="watchAd3()" class="bg-[#FF8C42] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#FF8C42]"><span id="ad3Completed2">0</span> / 5</p><p class="text-gray-500"><span id="ad3Remaining2">5</span> left</p></div></div>
 </div>
-
 <div id="tab-refer" class="hidden p-3">
 <div class="card rounded-[20px] p-4">
 <p class="font-bold text-sm">Referral Link</p>
@@ -48,7 +43,7 @@ body{background:#0B0E1A;color:white;font-family:Inter,sans-serif}
 <button onclick="copyRef()" class="bg-[#8B7CF8] rounded-full px-5 py-2 text-xs font-bold">Copy Link</button>
 </div>
 <p class="text-[11px] text-[#00D492] mt-2">💰 Earn $0.025 per valid referral</p>
-<p class="text-[10px] text-gray-500 mt-1">Valid = completes ALL ads (20+15+20) for 2 days</p>
+<p class="text-[10px] text-gray-500 mt-1">Valid = completes ALL ads (20+15+5) for 2 days</p>
 </div>
 <div class="grid grid-cols-3 gap-2 mt-3">
 <div class="card rounded-[16px] p-3 text-center"><p class="text-[10px] text-gray-400">Total Invited</p><p class="font-black text-lg" id="statTotal">0</p></div>
@@ -64,15 +59,13 @@ body{background:#0B0E1A;color:white;font-family:Inter,sans-serif}
 <div id="referralList" class="mt-3 space-y-2"><div class="text-center py-6 text-[11px] text-gray-500">No referrals yet. Share your bot link!<br><br>Bot tracks Day 1 ✅ + Day 2 ✅ = $0.025</div></div>
 </div>
 </div>
-
 <div id="tab-account" class="hidden p-3">
 <div class="card rounded-[20px] p-5 flex justify-between items-center"><div><p class="text-[11px] tracking-[2px] text-gray-400">YOUR BALANCE</p><h1 class="text-4xl font-black mt-1" id="balance2">0.0500</h1><p class="text-xs text-[#00D492] mt-1">≈$<span id="balanceUSDT2">0.0500</span> USDT</p></div><div class="w-16 h-16 bg-gradient-to-br from-[#8B7CF8] to-[#6B5CFF] rounded-[16px] flex items-center justify-center"><i class="fas fa-gem text-2xl"></i></div></div>
 <div class="card rounded-[20px] p-4 mt-3 flex items-center gap-3"><div class="w-12 h-12 bg-[#2AFFF0] rounded-full flex items-center justify-center text-[#1A1F36] font-black" id="userAvatar">U</div><div class="flex-1"><p class="font-bold text-sm" id="userName">User 💬 <span class="bg-[#2A3452] text-[10px] px-2 py-1 rounded-full ml-2">Telegram</span></p><p class="text-xs text-gray-400" id="userHandle">@user_...</p><p class="text-[11px] bg-[#0B0E1A] px-2 py-1 rounded-full mt-1 inline-block">ID: <span id="userIdDisplay">...</span></p></div></div>
 <div class="grid grid-cols-3 gap-2 mt-3"><div class="bg-[#8B7CF8] rounded-[16px] p-4 text-center" onclick="switchTab('home')"><i class="fas fa-bolt"></i><p class="font-bold text-xs mt-1">Earn</p></div><div class="bg-[#0E9D6E] rounded-[16px] p-4 text-center" onclick="openWithdraw()"><i class="fas fa-money-bill"></i><p class="font-bold text-xs mt-1">Withdraw</p></div><div class="bg-[#6B5CFF] rounded-[16px] p-4 text-center" onclick="switchTab('refer')"><i class="fas fa-gift"></i><p class="font-bold text-xs mt-1">Refer & Earn</p></div></div>
 <div class="card rounded-[16px] p-4 mt-3"><p class="font-bold text-sm">Total Balance</p><h2 class="text-2xl font-black mt-1">$<span id="balanceAccount">0.0500</span></h2><button onclick="openWithdraw()" class="bg-[#8B7CF8] w-full mt-3 py-3 rounded-full font-bold text-sm">Withdraw</button></div>
-<div class="bg-[#FFF3CD] border border-[#FFD60A] rounded-[16px] p-4 mt-3"><p class="text-[#664D03] font-bold text-xs">📢 Notice Board</p><p class="text-[#664D03] text-[11px] mt-1">• Withdrawals take a few seconds to arrive after approval.<br>• 20% fee | Min $5 | BEP20 & TRC20<br>• Referral: $0.025 after 2 days full completion<br>• Check-in: 10/day = $0.10/day max<br>• Bot: @Realads01_bot</p></div>
+<div class="bg-[#FFF3CD] border border-[#FFD60A] rounded-[16px] p-4 mt-3"><p class="text-[#664D03] font-bold text-xs">📢 Notice Board</p><p class="text-[#664D03] text-[11px] mt-1">• Withdrawals take a few seconds to arrive after approval.<br>• 20% fee | Min $5 | BEP20 & TRC20<br>• Referral: $0.025 after 2 days full (20+15+5)<br>• Check-in: 10/day = $0.10/day max<br>• Ads powered by Ads Galaxy ID 139<br>• Bot: @Realads01_bot</p></div>
 </div>
-
 <div id="withdraw-modal" class="hidden fixed inset-0 bg-black/80 z-[60] flex items-center justify-center p-4">
 <div class="bg-[#1A1F36] rounded-[24px] w-full max-w-sm p-5">
 <div class="flex justify-between items-center"><p class="font-bold">Withdraw USDT</p><button onclick="closeWithdraw()" class="w-8 h-8 bg-[#0B0E1A] rounded-full"><i class="fas fa-times"></i></button></div>
@@ -88,7 +81,6 @@ body{background:#0B0E1A;color:white;font-family:Inter,sans-serif}
 <button onclick="submitWithdraw()" class="bg-[#8B7CF8] w-full mt-4 py-3 rounded-full font-bold text-sm">Confirm Withdrawal</button>
 </div>
 </div>
-
 <div id="ai-float" class="fixed bottom-24 left-4 z-40"><button onclick="openAI()" class="w-14 h-14 bg-[#8B7CF8] rounded-full shadow-lg flex items-center justify-center"><i class="fas fa-robot"></i></button></div>
 <div id="ai-modal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-end">
 <div class="bg-[#1A1F36] w-full rounded-t-[24px] h-[75%] flex flex-col">
@@ -97,14 +89,12 @@ body{background:#0B0E1A;color:white;font-family:Inter,sans-serif}
 <div class="p-3 border-t border-[#2A3452] flex gap-2"><input id="ai-input" placeholder="Type your question, I think..." class="flex-1 bg-[#0B0E1A] p-3 rounded-full text-sm outline-none" onkeypress="if(event.key==='Enter')sendAI()"/><button onclick="sendAI()" class="bg-[#8B7CF8] w-12 h-12 rounded-full"><i class="fas fa-paper-plane"></i></button></div>
 </div>
 </div>
-
 <div class="fixed bottom-0 left-0 right-0 bottom-nav flex justify-around py-3 z-30">
 <button onclick="switchTab('home')" id="nav-home" class="nav-active flex flex-col items-center text-[11px] w-1/4"><i class="fas fa-th-large text-lg"></i><span class="mt-1">Home</span></button>
 <button onclick="switchTab('earn')" id="nav-earn" class="flex flex-col items-center text-[11px] text-gray-500 w-1/4"><i class="fas fa-list text-lg"></i><span class="mt-1">Earn</span></button>
 <button onclick="switchTab('refer')" id="nav-refer" class="flex flex-col items-center text-[11px] text-gray-500 w-1/4"><i class="fas fa-gift text-lg"></i><span class="mt-1">Refer</span></button>
 <button onclick="switchTab('account')" id="nav-account" class="flex flex-col items-center text-[11px] text-gray-500 w-1/4"><i class="fas fa-user text-lg"></i><span class="mt-1">Account</span></button>
 </div>
-
 <script>
 const API=''; 
 let tg = window.Telegram?.WebApp;
@@ -147,7 +137,7 @@ if(chk>=10){
   checkBtn.className = 'bg-white text-[#8B7CF8] rounded-full px-6 py-2 text-sm font-bold';
 }
 let a1=d.ad1Count||0,a2=d.ad2Count||0,a3=d.ad3Count||0;
-document.getElementById('ad1Completed').innerText=a1;document.getElementById('ad1Remaining').innerText=20-a1;document.getElementById('ad1Completed2').innerText=a1;document.getElementById('ad1Remaining2').innerText=20-a1;document.getElementById('ad2Completed').innerText=a2;document.getElementById('ad2Remaining').innerText=15-a2;document.getElementById('ad3Completed').innerText=a3;document.getElementById('ad3Remaining').innerText=20-a3;document.getElementById('ad3Completed2').innerText=a3;document.getElementById('ad3Remaining2').innerText=20-a3;
+document.getElementById('ad1Completed').innerText=a1;document.getElementById('ad1Remaining').innerText=20-a1;document.getElementById('ad1Completed2').innerText=a1;document.getElementById('ad1Remaining2').innerText=20-a1;document.getElementById('ad2Completed').innerText=a2;document.getElementById('ad2Remaining').innerText=15-a2;document.getElementById('ad3Completed').innerText=a3;document.getElementById('ad3Remaining').innerText=5-a3;document.getElementById('ad3Completed2').innerText=a3;document.getElementById('ad3Remaining2').innerText=5-a3;
 let link = `https://t.me/${BOT_USERNAME}?start=${userId}`;
 document.getElementById('refLink').innerText=link;
 document.getElementById('refsCount').innerText=d.referrals?.length||0;
@@ -176,12 +166,39 @@ async function doEarn(amount,type){
   let res=await fetch(`${API}/api/earn`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId,adType:type,amount,username:tgUsername,firstName:tgFirstName})});
   let d=await res.json();
   if(!d.ok){alert(d.msg);return false;}
-  loadUser();
-  return true;
+  loadUser(); return true;
 }
-async function watchAd1(){window.open('https://ads-galaxy.com','_blank');await new Promise(r=>setTimeout(r,2000));doEarn(0.005,'ad1');}
-async function watchAd2(){window.open('https://ads-galaxy.com','_blank');await new Promise(r=>setTimeout(r,2000));doEarn(0.005,'ad2');}
-async function watchAd3(){window.open('https://ads-galaxy.com','_blank');await new Promise(r=>setTimeout(r,2000));doEarn(0.01,'ad3');}
+// === NEW ADS GALAXY SECURE FUNCTIONS ===
+async function watchWithGalaxy(adType){
+  try{
+    if(typeof window.showAdsGalaxy !== 'function'){
+      alert('Ads Galaxy SDK not loaded! Check header script');
+      return;
+    }
+    const result = await window.showAdsGalaxy();
+    const res = await fetch(`${API}/api/adsgalaxy-confirm`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        userId:userId,
+        request_id: result.request_id,
+        event_id: result.event_id || result.request_id,
+        adType: adType
+      })
+    });
+    const d = await res.json();
+    if(!d.ok){ alert(d.msg); return; }
+    alert(`✅ ${adType.toUpperCase()} +$${d.reward} credited! Balance $${d.balance.toFixed(4)} | ${d.left} left today`);
+    loadUser();
+  }catch(e){
+    console.log(e);
+    alert('❌ Ad not completed: '+(e.message||e.code||'closed'));
+  }
+}
+async function watchAd1(){ await watchWithGalaxy('ad1'); }
+async function watchAd2(){ await watchWithGalaxy('ad2'); }
+async function watchAd3(){ await watchWithGalaxy('ad3'); }
+
 async function checkIn(){
   let ok = await doEarn(0.01,'checkin');
   if(ok) alert('✅ Checked in +0.010 USDT');
