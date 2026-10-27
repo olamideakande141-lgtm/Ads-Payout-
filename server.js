@@ -95,6 +95,23 @@ function checkAllAdsComplete(u){
   return (u.ad1Count>=20 && u.ad2Count>=15 && u.ad3Count>=5);
 }
 
+// === FORCE JOIN CHANNEL CHECK ===
+async function isUserInChannel(userId){
+  if(!BOT_TOKEN) return true;
+  try{
+    const chatId = MY_CHANNEL.startsWith('@') ? MY_CHANNEL : '@'+MY_CHANNEL;
+    const resp = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getChatMember?chat_id=${chatId}&user_id=${userId}`);
+    const data = await resp.json();
+    if(!data.ok) return true;
+    const status = data.result?.status;
+    if(['left','kicked','banned'].includes(status)) return false;
+    return true;
+  }catch(e){
+    console.log("Channel check error", e);
+    return true;
+  }
+}
+
 function getSmartAIReply(userMsg, userData){
   const msg = userMsg.toLowerCase();
   const bal = userData?.balance || 0;
@@ -155,9 +172,20 @@ app.get('/api/user',(req,res)=>{
   if(users[id].checkinDate!==today){ users[id].checkinCount=0; users[id].checkinDate=today; }
   save(); res.json(users[id]);
 });
+
+// === NEW: CHECK JOIN ENDPOINT FOR MINI APP ===
+app.get('/api/check-join', async (req,res)=>{
+  const userId = req.query.userId;
+  if(!userId) return res.json({joined:true});
+  const joined = await isUserInChannel(userId);
+  res.json({joined: joined, channel: MY_CHANNEL});
+});
+
 app.get('/api/tasks',(req,res)=>res.json(tasks));
 app.post('/api/complete-task', async (req,res)=>{
   const {userId, taskId}=req.body;
+  const joined = await isUserInChannel(userId);
+  if(!joined) return res.json({ok:false, msg:`❌ You must JOIN ${MY_CHANNEL} first!`});
   if(!users[userId]) users[userId]={balance:0,tasksCompleted:[],referralCount:0,ad1Count:0,ad1Date:'',ad2Count:0,ad2Date:'',ad3Count:0,ad3Date:'',checkinCount:0,checkinDate:'',referrals:[],referralEarnings:0,completedDays:[]};
   if(users[userId].tasksCompleted.includes(taskId)) return res.json({ok:false, msg:"Already claimed"});
   const task=tasks.find(t=>t.id==taskId);
@@ -167,9 +195,10 @@ app.post('/api/complete-task', async (req,res)=>{
   save(); res.json({ok:true, balance:users[userId].balance});
 });
 
-// OLD earn kept only for checkin
-app.post('/api/earn',(req,res)=>{
+app.post('/api/earn', async (req,res)=>{
   const {userId, amount, adType, username, firstName}=req.body;
+  const joined = await isUserInChannel(userId);
+  if(!joined) return res.json({ok:false, msg:`❌ You must JOIN ${MY_CHANNEL} to earn!`, needJoin:true});
   if(!users[userId]) users[userId]={balance:0,tasksCompleted:[],referralCount:0,ad1Count:0,ad1Date:'',ad2Count:0,ad2Date:'',ad3Count:0,ad3Date:'',checkinCount:0,checkinDate:'',lastCheckinDate:'',streak:0,referrals:[],referralEarnings:0,completedDays:[]};
   if(username) users[userId].username = username;
   if(firstName) users[userId].firstName = firstName;
@@ -186,7 +215,6 @@ app.post('/api/earn',(req,res)=>{
     users[userId].lastCheckinDate = today;
     if(users[userId].checkinCount===1){ users[userId].streak = (users[userId].streak||0)+1; }
   } else {
-    // block direct ad earn, must use adsgalaxy
     return res.json({ok:false, msg:"Use Ads Galaxy button"});
   }
   if(amount) users[userId].balance+=parseFloat(amount);
@@ -217,10 +245,13 @@ app.post('/api/earn',(req,res)=>{
   res.json({ok:true, balance:users[userId].balance, ad1Count:users[userId].ad1Count, ad2Count:users[userId].ad2Count, ad3Count:users[userId].ad3Count, checkinCount:users[userId].checkinCount, streak:users[userId].streak});
 });
 
-// === ADS GALAXY ID 139 INTEGRATION - SECURE ===
 const adGalaxyUsed = new Set();
-app.post('/api/adsgalaxy-confirm', (req,res)=>{
+app.post('/api/adsgalaxy-confirm', async (req,res)=>{
   const {userId, request_id, event_id, adType} = req.body;
+  const joined = await isUserInChannel(userId);
+  if(!joined){
+    return res.json({ok:false, msg:`❌ You left ${MY_CHANNEL}! Join channel to earn!`, needJoin:true, channel:MY_CHANNEL});
+  }
   const id = event_id || request_id;
   if(!id) return res.json({ok:false, msg:"No request_id"});
   if(adGalaxyUsed.has(id)) return res.json({ok:false, msg:"Already credited"});
@@ -244,7 +275,6 @@ app.post('/api/adsgalaxy-confirm', (req,res)=>{
   }
   users[userId].balance+=reward;
   adGalaxyUsed.add(id);
-  // referral check
   if(checkAllAdsComplete(users[userId])){
     if(!users[userId].completedDays.includes(today)){
       users[userId].completedDays.push(today);
@@ -306,8 +336,12 @@ app.post('/api/ai-chat',(req,res)=>{
   const reply = getSmartAIReply(message, userData);
   res.json({ok:true, reply});
 });
-app.post('/api/withdraw',(req,res)=>{
+app.post('/api/withdraw', async (req,res)=>{
   const {userId, wallet, address, cryptoType, network, amount}=req.body;
+  const joined = await isUserInChannel(userId);
+  if(!joined){
+    return res.json({ok:false, msg:`❌ You left ${MY_CHANNEL}! You must re-join channel to withdraw.`, needJoin:true, channel:MY_CHANNEL});
+  }
   const finalWallet = wallet || address;
   const finalNetwork = network || cryptoType || 'BEP20';
   const withdrawAmount = amount ? parseFloat(amount) : users[userId]?.balance;
@@ -336,4 +370,4 @@ app.post('/api/add-task',(req,res)=>{
   saveTasks(); res.json({ok:true});
 });
 app.get('/',(req,res)=>res.sendFile(path.join(__dirname,'public','index.html')));
-app.listen(process.env.PORT||3000,()=>console.log('Running @'+BOT_USERNAME+' SPECIAL 5/day + ADS GALAXY 139'));
+app.listen(process.env.PORT||3000,()=>console.log('Running @'+BOT_USERNAME+' SPECIAL 5/day + ADS GALAXY 139 + FORCE JOIN'));
