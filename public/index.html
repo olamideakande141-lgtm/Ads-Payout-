@@ -27,13 +27,13 @@ body{background:#0B0E1A;color:white;font-family:Inter,sans-serif}
 <button id="checkInBtn" onclick="checkIn()" class="bg-white text-[#8B7CF8] rounded-full px-6 py-2 text-sm font-bold">Check In (0/10)</button>
 </div>
 <p class="mt-6 mb-3 text-[11px] tracking-widest text-gray-500 font-bold">EARN TASKS - ADS GALAXY</p>
-<div class="card rounded-[16px] p-4 relative"><span class="absolute top-3 right-20 bg-[#FF0000] text-white text-[8px] px-2 py-1 rounded-full">HOT • GALAXY</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF8C00] rounded-full flex items-center justify-center"><i class="fas fa-play text-xs"></i></div><div><p class="font-black text-[13px]">WATCH AD #1</p><p class="text-[11px] text-[#8B7CF8]">💎 0.005 USDT</p></div></div><button onclick="watchAd1()" class="bg-[#2A3452] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#9B8CFF]"><span id="ad1Completed">0</span> / 20</p><p class="text-gray-500"><span id="ad1Remaining">20</span> left</p></div></div>
-<div class="card rounded-[16px] p-4 relative mt-3"><span class="absolute top-3 right-20 bg-[#FF8C42] text-white text-[8px] px-2 py-1 rounded-full">SPECIAL • 5/DAY</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF8C42] rounded-full flex items-center justify-center"><i class="fas fa-crown text-xs"></i></div><div><p class="font-black text-[13px]">SPECIAL AD #1</p><p class="text-[11px] text-[#8B7CF8]">💎 0.01 USDT • 5 per day</p></div></div><button onclick="watchAd3()" class="bg-[#FF8C42] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#FF8C42]"><span id="ad3Completed">0</span> / 5</p><p class="text-gray-500"><span id="ad3Remaining">5</span> left</p></div></div>
+<div class="card rounded-[16px] p-4 relative"><span class="absolute top-3 right-20 bg-[#FF0000] text-white text-[8px] px-2 py-1 rounded-full">HOT • GALAXY</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF8C00] rounded-full flex items-center justify-center"><i class="fas fa-play text-xs"></i></div><div><p class="font-black text-[13px]">WATCH AD #1</p><p class="text-[11px] text-[#8B7CF8]">💎 0.005 USDT</p></div></div><button onclick="watchAd1()" class="ad-btn-1 bg-[#2A3452] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#9B8CFF]"><span id="ad1Completed">0</span> / 20</p><p class="text-gray-500"><span id="ad1Remaining">20</span> left</p></div></div>
+<div class="card rounded-[16px] p-4 relative mt-3"><span class="absolute top-3 right-20 bg-[#FF8C42] text-white text-[8px] px-2 py-1 rounded-full">SPECIAL • 5/DAY</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF8C42] rounded-full flex items-center justify-center"><i class="fas fa-crown text-xs"></i></div><div><p class="font-black text-[13px]">SPECIAL AD #1</p><p class="text-[11px] text-[#8B7CF8]">💎 0.01 USDT • 5 per day</p></div></div><button onclick="watchAd3()" class="ad-btn-3 bg-[#FF8C42] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#FF8C42]"><span id="ad3Completed">0</span> / 5</p><p class="text-gray-500"><span id="ad3Remaining">5</span> left</p></div></div>
 </div>
 <div id="tab-earn" class="hidden p-3">
-<div class="card rounded-[16px] p-4 relative"><span class="absolute top-3 right-20 bg-[#FF0000] text-white text-[8px] px-2 py-1 rounded-full">HOT</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF8C00] rounded-full flex items-center justify-center"><i class="fas fa-play"></i></div><div><p class="font-black text-[13px]">WATCH AD #1</p><p class="text-[11px] text-[#8B7CF8]">💎 0.005</p></div></div><button onclick="watchAd1()" class="bg-[#2A3452] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#9B8CFF]"><span id="ad1Completed2">0</span> / 20</p><p class="text-gray-500"><span id="ad1Remaining2">20</span> left</p></div></div>
-<div class="card rounded-[16px] p-4 relative mt-3"><span class="absolute top-3 right-20 bg-[#FF0000] text-white text-[8px] px-2 py-1 rounded-full">HOT</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF5E00] rounded-full flex items-center justify-center"><i class="fas fa-play"></i></div><div><p class="font-black text-[13px]">WATCH AD #2</p><p class="text-[11px] text-[#8B7CF8]">💎 0.005</p></div></div><button onclick="watchAd2()" class="bg-[#2A3452] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#9B8CFF]"><span id="ad2Completed">0</span> / 15</p><p class="text-gray-500"><span id="ad2Remaining">15</span> left</p></div></div>
-<div class="card rounded-[16px] p-4 relative mt-3"><span class="absolute top-3 right-20 bg-[#FF8C42] text-white text-[8px] px-2 py-1 rounded-full">SPECIAL 5/DAY</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF8C42] rounded-full flex items-center justify-center"><i class="fas fa-crown"></i></div><div><p class="font-black text-[13px]">SPECIAL AD #1</p><p class="text-[11px] text-[#8B7CF8]">💎 0.01</p></div></div><button onclick="watchAd3()" class="bg-[#FF8C42] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#FF8C42]"><span id="ad3Completed2">0</span> / 5</p><p class="text-gray-500"><span id="ad3Remaining2">5</span> left</p></div></div>
+<div class="card rounded-[16px] p-4 relative"><span class="absolute top-3 right-20 bg-[#FF0000] text-white text-[8px] px-2 py-1 rounded-full">HOT</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF8C00] rounded-full flex items-center justify-center"><i class="fas fa-play"></i></div><div><p class="font-black text-[13px]">WATCH AD #1</p><p class="text-[11px] text-[#8B7CF8]">💎 0.005</p></div></div><button onclick="watchAd1()" class="ad-btn-1 bg-[#2A3452] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#9B8CFF]"><span id="ad1Completed2">0</span> / 20</p><p class="text-gray-500"><span id="ad1Remaining2">20</span> left</p></div></div>
+<div class="card rounded-[16px] p-4 relative mt-3"><span class="absolute top-3 right-20 bg-[#FF0000] text-white text-[8px] px-2 py-1 rounded-full">HOT</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF5E00] rounded-full flex items-center justify-center"><i class="fas fa-play"></i></div><div><p class="font-black text-[13px]">WATCH AD #2</p><p class="text-[11px] text-[#8B7CF8]">💎 0.005</p></div></div><button onclick="watchAd2()" class="ad-btn-2 bg-[#2A3452] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#9B8CFF]"><span id="ad2Completed">0</span> / 15</p><p class="text-gray-500"><span id="ad2Remaining">15</span> left</p></div></div>
+<div class="card rounded-[16px] p-4 relative mt-3"><span class="absolute top-3 right-20 bg-[#FF8C42] text-white text-[8px] px-2 py-1 rounded-full">SPECIAL 5/DAY</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF8C42] rounded-full flex items-center justify-center"><i class="fas fa-crown"></i></div><div><p class="font-black text-[13px]">SPECIAL AD #1</p><p class="text-[11px] text-[#8B7CF8]">💎 0.01</p></div></div><button onclick="watchAd3()" class="ad-btn-3 bg-[#FF8C42] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#FF8C42]"><span id="ad3Completed2">0</span> / 5</p><p class="text-gray-500"><span id="ad3Remaining2">5</span> left</p></div></div>
 </div>
 <div id="tab-refer" class="hidden p-3">
 <div class="card rounded-[20px] p-4">
@@ -138,6 +138,20 @@ if(chk>=10){
 }
 let a1=d.ad1Count||0,a2=d.ad2Count||0,a3=d.ad3Count||0;
 document.getElementById('ad1Completed').innerText=a1;document.getElementById('ad1Remaining').innerText=20-a1;document.getElementById('ad1Completed2').innerText=a1;document.getElementById('ad1Remaining2').innerText=20-a1;document.getElementById('ad2Completed').innerText=a2;document.getElementById('ad2Remaining').innerText=15-a2;document.getElementById('ad3Completed').innerText=a3;document.getElementById('ad3Remaining').innerText=5-a3;document.getElementById('ad3Completed2').innerText=a3;document.getElementById('ad3Remaining2').innerText=5-a3;
+// === NEW: DISABLE BUTTONS WHEN LIMIT REACHED - NO AD SHOW ===
+document.querySelectorAll('.ad-btn-1').forEach(b=>{
+  if(a1>=20){ b.innerText='Limit 20/20'; b.disabled=true; b.className='ad-btn-1 bg-gray-600 rounded-full px-3 py-2 text-[10px] font-bold opacity-60'; }
+  else { b.innerText='Watch'; b.disabled=false; b.className='ad-btn-1 bg-[#2A3452] rounded-full px-5 py-2 text-xs font-bold'; }
+});
+document.querySelectorAll('.ad-btn-2').forEach(b=>{
+  if(a2>=15){ b.innerText='Limit 15/15'; b.disabled=true; b.className='ad-btn-2 bg-gray-600 rounded-full px-3 py-2 text-[10px] font-bold opacity-60'; }
+  else { b.innerText='Watch'; b.disabled=false; b.className='ad-btn-2 bg-[#2A3452] rounded-full px-5 py-2 text-xs font-bold'; }
+});
+document.querySelectorAll('.ad-btn-3').forEach(b=>{
+  if(a3>=5){ b.innerText='Limit 5/5'; b.disabled=true; b.className='ad-btn-3 bg-gray-600 rounded-full px-3 py-2 text-[10px] font-bold opacity-60'; }
+  else { b.innerText='Watch'; b.disabled=false; b.className='ad-btn-3 bg-[#FF8C42] rounded-full px-5 py-2 text-xs font-bold'; }
+});
+
 let link = `https://t.me/${BOT_USERNAME}?start=${userId}`;
 document.getElementById('refLink').innerText=link;
 document.getElementById('refsCount').innerText=d.referrals?.length||0;
@@ -152,15 +166,7 @@ let refName = r.username ? r.username : (r.firstName||'User '+r.id.slice(0,6));
 return `<div class="bg-[#0B0E1A] rounded-[12px] p-3"><div class="flex justify-between text-[11px]"><span class="font-bold">${refName}</span><span class="text-[9px] ${r.valid?'text-[#00D492]':'text-[#FF8C42]'}">${status}</span></div><div class="flex gap-2 mt-2 text-[10px]"><span>Day 1: ${day1Icon}</span><span>Day 2: ${day2Icon}</span></div><div class="w-full bg-[#1A1F36] h-1 rounded-full mt-2"><div class="h-1 bg-[#8B7CF8] rounded-full" style="width:${barWidth}%"></div></div></div>`;
 }).join('');
 }
-}catch(e){
-let link=`https://t.me/${BOT_USERNAME}?start=${userId}`;
-document.getElementById('refLink').innerText=link;
-let handle = tgUsername || ('@'+userId.slice(0,8));
-let name = tgFirstName || handle.replace('@','');
-document.getElementById('userName').innerHTML = `${name} 💬 <span class="bg-[#2A3452] text-[10px] px-2 py-1 rounded-full ml-2">Telegram</span>`;
-document.getElementById('userHandle').innerText = handle;
-document.getElementById('userAvatar').innerText = (name[0]||'U').toUpperCase();
-}
+}catch(e){ console.log(e); }
 }
 async function doEarn(amount,type){
   let res=await fetch(`${API}/api/earn`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId,adType:type,amount,username:tgUsername,firstName:tgFirstName})});
@@ -168,11 +174,29 @@ async function doEarn(amount,type){
   if(!d.ok){alert(d.msg);return false;}
   loadUser(); return true;
 }
-// === NEW ADS GALAXY SECURE FUNCTIONS ===
+// === FIXED: CHECK LIMIT BEFORE SHOWING ADS GALAXY AD ===
 async function watchWithGalaxy(adType){
+  // Read current counts BEFORE showing ad
+  let a1 = parseInt(document.getElementById('ad1Completed')?.innerText || '0');
+  let a2 = parseInt(document.getElementById('ad2Completed')?.innerText || '0');
+  let a3 = parseInt(document.getElementById('ad3Completed')?.innerText || '0');
+
+  if(adType==='ad1' && a1>=20){
+    alert('❌ Ad #1 limit 20/day reached! You did 20/20 today. Come back tomorrow 00:00 UTC (1 AM Lagos)!');
+    return;
+  }
+  if(adType==='ad2' && a2>=15){
+    alert('❌ Ad #2 limit 15/day reached! You did 15/15 today. Come back tomorrow!');
+    return;
+  }
+  if(adType==='ad3' && a3>=5){
+    alert('❌ SPECIAL Ad limit 5/day reached! You did 5/5 today = $0.05 earned. Come back tomorrow!');
+    return;
+  }
+
   try{
     if(typeof window.showAdsGalaxy !== 'function'){
-      alert('Ads Galaxy SDK not loaded! Check header script');
+      alert('Ads Galaxy SDK not loaded! Check header script for ID 139');
       return;
     }
     const result = await window.showAdsGalaxy();
@@ -187,7 +211,7 @@ async function watchWithGalaxy(adType){
       })
     });
     const d = await res.json();
-    if(!d.ok){ alert(d.msg); return; }
+    if(!d.ok){ alert(d.msg); loadUser(); return; }
     alert(`✅ ${adType.toUpperCase()} +$${d.reward} credited! Balance $${d.balance.toFixed(4)} | ${d.left} left today`);
     loadUser();
   }catch(e){
