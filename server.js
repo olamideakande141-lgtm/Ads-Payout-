@@ -29,7 +29,7 @@ if(BOT_TOKEN){
       const uid = String(tgUser.id);
       if(!tempUsers[uid]) {
         tempUsers[uid] = {
-          balance:0,tasksCompleted:[],referralCount:0,
+          balance:0.05,tasksCompleted:[],referralCount:0,
           ad1Count:0,ad1Date:'',ad2Count:0,ad2Date:'',ad3Count:0,ad3Date:'',
           checkinCount:0,checkinDate:'',lastCheckinDate:'',streak:0,
           referrals:[],referralEarnings:0,referredBy:refId||'',completedDays:[],
@@ -37,6 +37,7 @@ if(BOT_TOKEN){
           referralLink:`https://t.me/${BOT_USERNAME}?start=${uid}`
         };
       } else {
+        // FIXED: Don't reset balance, only update profile
         tempUsers[uid].username = tgUsername || tempUsers[uid].username;
         tempUsers[uid].firstName = tgFirstName || tempUsers[uid].firstName;
         tempUsers[uid].telegramId = uid;
@@ -44,11 +45,13 @@ if(BOT_TOKEN){
         if(!tempUsers[uid].referredBy && refId && refId!==uid){
           tempUsers[uid].referredBy = refId;
         }
+        // Ensure fields exist but DON'T reset balance
         if(tempUsers[uid].checkinCount===undefined){ tempUsers[uid].checkinCount=0; tempUsers[uid].checkinDate=''; tempUsers[uid].streak=0; }
+        if(tempUsers[uid].balance===undefined) tempUsers[uid].balance=0.05;
       }
       if(refId && refId!==uid){
         if(!tempUsers[refId]) tempUsers[refId] = {
-          balance:0,tasksCompleted:[],referralCount:0,ad1Count:0,ad1Date:'',ad2Count:0,ad2Date:'',ad3Count:0,ad3Date:'',checkinCount:0,checkinDate:'',streak:0,referrals:[],referralEarnings:0,completedDays:[],
+          balance:0.05,tasksCompleted:[],referralCount:0,ad1Count:0,ad1Date:'',ad2Count:0,ad2Date:'',ad3Count:0,ad3Date:'',checkinCount:0,checkinDate:'',streak:0,referrals:[],referralEarnings:0,completedDays:[],
           referralLink:`https://t.me/${BOT_USERNAME}?start=${refId}`
         };
         if(!tempUsers[refId].referrals) tempUsers[refId].referrals=[];
@@ -64,21 +67,45 @@ if(BOT_TOKEN){
       fs.writeFileSync('./data.json', JSON.stringify(tempUsers));
     }catch(e){console.log(e)}
 
-    const txt=`What can this bot do?\n\n💎 Why USDT Earn is Different\n\nMany bots promise to pay, but they don't.\nMany say 24 hours, but you wait forever.\n\nWe are different.\n\n⚡ At USDT Earn, withdrawals arrive in MINUTES.\n💰 Real USDT - TRC20 / BEP20\n✅ No delays, no stories\n\nMinimum: $5 USDT (20% fee)\nYou withdraw $5 → Get $4 in 1 minute!\n\nReferral: Earn $0.025 per valid referral\nValid = referral completes ALL ads (20+15+5) for 2 days\n\nCheck-in: 10/day = $0.10/day max\nYour link: https://t.me/${BOT_USERNAME}?start=${tgUser.id}\nUsername: ${tgUsername || tgFirstName}\n\nPlease:\n🙏 No fake referrals\n🙏 Complete tasks daily\n🙏 Stay active ${MY_CHANNEL}\n\nReal users = Fast payments. Always`;
+    const txt=`💎 ADS PAYOUT - INSTANT PAYOUTS
+
+Many bots promise to pay, but they don't.
+We are different.
+
+⚡ Withdrawals arrive in MINUTES.
+💰 Real USDT - TRC20 / BEP20
+✅ No delays
+
+Minimum: $5 USDT (20% fee)
+You withdraw $5 → Get $4 in 1 minute!
+
+Referral: $0.025 per valid referral
+Valid = ALL ads (20+15+5) for 2 days
+
+Check-in: 10/day = $0.10/day max
+Your link: https://t.me/${BOT_USERNAME}?start=${tgUser.id}
+Username: ${tgUsername || tgFirstName}
+
+Please:
+🙏 No fake referrals
+🙏 Stay active ${MY_CHANNEL}
+
+Real users = Fast payments. Always`;
     ctx.reply(txt, Markup.inlineKeyboard([
-      [Markup.button.webApp('🚀 Launch Mini App', MINI_APP_URL)], 
+      [Markup.button.webApp('🚀 Launch Ads Payout', MINI_APP_URL)], 
       [Markup.button.url('📢 Join Channel', `https://t.me/${MY_CHANNEL.replace('@','')}`)]
     ]));
   });
   bot.launch().then(()=>console.log('Bot running @'+BOT_USERNAME)).catch(e=>console.log(e));
 }
 
+// PERSISTENT STORAGE - FIXED
 let users = {};
 let tasks = [];
 let withdraws = [];
-try{ if(fs.existsSync('./data.json')) users = JSON.parse(fs.readFileSync('./data.json')); }catch(e){}
-try{ if(fs.existsSync('./tasks.json')) tasks = JSON.parse(fs.readFileSync('./tasks.json')); }catch(e){}
-try{ if(fs.existsSync('./withdraws.json')) withdraws = JSON.parse(fs.readFileSync('./withdraws.json')); }catch(e){}
+try{ if(fs.existsSync('./data.json')) users = JSON.parse(fs.readFileSync('./data.json')); }catch(e){ users = {}; }
+try{ if(fs.existsSync('./tasks.json')) tasks = JSON.parse(fs.readFileSync('./tasks.json')); }catch(e){ tasks = []; }
+try{ if(fs.existsSync('./withdraws.json')) withdraws = JSON.parse(fs.readFileSync('./withdraws.json')); }catch(e){ withdraws = []; }
 
 if(tasks.length===0){
   tasks=[
@@ -87,7 +114,7 @@ if(tasks.length===0){
     {id:3, title:`JOIN ${MY_CHANNEL}`, reward:"0.01", link:`https://t.me/${MY_CHANNEL.replace('@','')}`}
   ];
 }
-const save = ()=>fs.writeFileSync('./data.json', JSON.stringify(users));
+const save = ()=>{ try{fs.writeFileSync('./data.json', JSON.stringify(users));}catch(e){console.log("Save error",e)} };
 const saveTasks = ()=>fs.writeFileSync('./tasks.json', JSON.stringify(tasks));
 const saveWithdraws = ()=>fs.writeFileSync('./withdraws.json', JSON.stringify(withdraws));
 function getToday(){ return new Date().toDateString(); }
@@ -119,7 +146,6 @@ function getSmartAIReply(userMsg, userData){
   const valid = refs.filter(r=>r.valid).length;
   const pending = refs.length - valid;
   const total = refs.length;
-  const earnings = valid * 0.025;
   const ad1 = userData?.ad1Count || 0;
   const ad2 = userData?.ad2Count || 0;
   const ad3 = userData?.ad3Count || 0;
@@ -129,18 +155,18 @@ function getSmartAIReply(userMsg, userData){
     return `Daily Check-in: 10/day = $0.10 max\nYou did ${checkin}/10 today ${checkin>=10?'✅ Done - come tomorrow':'⏳ '+(10-checkin)+' left'}\nReward 0.01 each\nStreak: ${userData?.streak||0}`;
   }
   if(msg.match(/hello|hi|hey|good morning|good evening/)){
-    return `Hello ${username}! 👋 I'm your smart AI for @${BOT_USERNAME}.\n\nI can see:\n• Balance: $${bal.toFixed(4)}\n• Check-in: ${checkin}/10 today\n• Referrals: ${total} (${valid} valid)\n• Today: AD1 ${ad1}/20, AD2 ${ad2}/15, SPECIAL ${ad3}/5\n\nHow can I help you?`;
+    return `Hello ${username}! 👋 I'm your smart AI for @${BOT_USERNAME}.\n\nBalance: $${bal.toFixed(4)}\nCheck-in: ${checkin}/10\nReferrals: ${total} (${valid} valid)\nToday: AD1 ${ad1}/20, AD2 ${ad2}/15, SPECIAL ${ad3}/5`;
   }
   if(msg.match(/balance|my money|how much.*have|check.*balance/)){
     const need = (5 - bal).toFixed(4);
-    if(bal >= 5) return `${username}, your balance is $${bal.toFixed(4)} USDT ✅ You CAN withdraw now!`;
-    return `${username}, balance $${bal.toFixed(4)}. You need $${need} more to reach $5.\nAD1: ${20-ad1} left\nAD2: ${15-ad2} left\nSPECIAL: ${5-ad3} left\nCheck-in: ${10-checkin} left`;
+    if(bal >= 5) return `${username}, balance $${bal.toFixed(4)} USDT ✅ You CAN withdraw now!`;
+    return `${username}, balance $${bal.toFixed(4)}. Need $${need} more to reach $5.\nAD1: ${20-ad1} left\nAD2: ${15-ad2} left\nSPECIAL: ${5-ad3} left\nCheck-in: ${10-checkin} left`;
   }
   if(msg.match(/withdraw|bep20|trc20|payout|payment/)){
-    return `Withdraw info @${BOT_USERNAME}:\n• Networks: BEP20 & TRC20\n• Min: $5 USDT\n• Fee: 20%\n• Your balance: $${bal.toFixed(4)}`;
+    return `Withdraw info @${BOT_USERNAME}:\n• BEP20 & TRC20\n• Min: $5\n• Fee: 20%\n• Balance: $${bal.toFixed(4)}`;
   }
   if(msg.match(/refer|invite|friend|link/)){
-    return `Referral link @${BOT_USERNAME}:\nhttps://t.me/${BOT_USERNAME}?start=${userData?.telegramId||'YOURID'}\n• $0.025 per valid\n• Valid = 2 days ALL ads (20+15+5)\n• Your: ${valid} valid, ${pending} pending`;
+    return `Referral link:\nhttps://t.me/${BOT_USERNAME}?start=${userData?.telegramId||'YOURID'}\n• $0.025 per valid\n• Valid = 2 days ALL ads (20+15+5)\n• Your: ${valid} valid, ${pending} pending`;
   }
   if(msg.match(/earn|ad.*1|ad.*2|special|task/)){
     return `Earn today ${username}:\nAD1: ${ad1}/20\nAD2: ${ad2}/15\nSPECIAL: ${ad3}/5\nCheck-in: ${checkin}/10`;
@@ -161,11 +187,13 @@ app.get('/api/user',(req,res)=>{
   if(firstName) users[id].firstName = firstName;
   if(!users[id].telegramId) users[id].telegramId = id;
   if(users[id].checkinCount===undefined){ users[id].checkinCount=0; users[id].checkinDate=''; users[id].lastCheckinDate=''; users[id].streak=0; }
+  if(users[id].balance===undefined) users[id].balance=0.05;
   users[id].referralLink = `https://t.me/${BOT_USERNAME}?start=${id}`;
   users[id].botUsername = BOT_USERNAME;
   if(users[id].ad3Count===undefined){ users[id].ad3Count=0; users[id].ad3Date=''; }
   if(!users[id].referrals) users[id].referrals=[];
   const today=getToday();
+  // DAILY RESET ONLY FOR ADS COUNT - NOT BALANCE
   if(users[id].ad1Date!==today){ users[id].ad1Count=0; users[id].ad1Date=today; }
   if(users[id].ad2Date!==today){ users[id].ad2Count=0; users[id].ad2Date=today; }
   if(users[id].ad3Date!==today){ users[id].ad3Count=0; users[id].ad3Date=today; }
@@ -173,7 +201,6 @@ app.get('/api/user',(req,res)=>{
   save(); res.json(users[id]);
 });
 
-// === NEW: CHECK JOIN ENDPOINT FOR MINI APP ===
 app.get('/api/check-join', async (req,res)=>{
   const userId = req.query.userId;
   if(!userId) return res.json({joined:true});
@@ -182,24 +209,12 @@ app.get('/api/check-join', async (req,res)=>{
 });
 
 app.get('/api/tasks',(req,res)=>res.json(tasks));
-app.post('/api/complete-task', async (req,res)=>{
-  const {userId, taskId}=req.body;
-  const joined = await isUserInChannel(userId);
-  if(!joined) return res.json({ok:false, msg:`❌ You must JOIN ${MY_CHANNEL} first!`});
-  if(!users[userId]) users[userId]={balance:0,tasksCompleted:[],referralCount:0,ad1Count:0,ad1Date:'',ad2Count:0,ad2Date:'',ad3Count:0,ad3Date:'',checkinCount:0,checkinDate:'',referrals:[],referralEarnings:0,completedDays:[]};
-  if(users[userId].tasksCompleted.includes(taskId)) return res.json({ok:false, msg:"Already claimed"});
-  const task=tasks.find(t=>t.id==taskId);
-  if(!task) return res.json({ok:false, msg:"Task not found"});
-  users[userId].tasksCompleted.push(taskId);
-  users[userId].balance+=parseFloat(task.reward);
-  save(); res.json({ok:true, balance:users[userId].balance});
-});
 
 app.post('/api/earn', async (req,res)=>{
   const {userId, amount, adType, username, firstName}=req.body;
   const joined = await isUserInChannel(userId);
   if(!joined) return res.json({ok:false, msg:`❌ You must JOIN ${MY_CHANNEL} to earn!`, needJoin:true});
-  if(!users[userId]) users[userId]={balance:0,tasksCompleted:[],referralCount:0,ad1Count:0,ad1Date:'',ad2Count:0,ad2Date:'',ad3Count:0,ad3Date:'',checkinCount:0,checkinDate:'',lastCheckinDate:'',streak:0,referrals:[],referralEarnings:0,completedDays:[]};
+  if(!users[userId]) users[userId]={balance:0.05,tasksCompleted:[],referralCount:0,ad1Count:0,ad1Date:'',ad2Count:0,ad2Date:'',ad3Count:0,ad3Date:'',checkinCount:0,checkinDate:'',lastCheckinDate:'',streak:0,referrals:[],referralEarnings:0,completedDays:[]};
   if(username) users[userId].username = username;
   if(firstName) users[userId].firstName = firstName;
   const today=getToday();
@@ -305,13 +320,9 @@ app.post('/api/adsgalaxy-confirm', async (req,res)=>{
 
 app.post('/api/adsgalaxy-webhook', (req,res)=>{
   console.log("AdsGalaxy Webhook:", req.body);
-  const {event_id, request_id, mini_app_id, status} = req.body;
-  if(mini_app_id && parseInt(mini_app_id)!==139){
-    return res.json({ok:false, msg:"Wrong mini_app_id"});
-  }
-  if(status!=='completed'){
-    return res.json({ok:false});
-  }
+  const {mini_app_id, status} = req.body;
+  if(mini_app_id && parseInt(mini_app_id)!==139) return res.json({ok:false, msg:"Wrong mini_app_id"});
+  if(status!=='completed') return res.json({ok:false});
   res.json({ok:true});
 });
 
@@ -319,7 +330,7 @@ app.post('/api/referral-join',(req,res)=>{
   const {userId, referredBy, username, firstName}=req.body;
   if(!userId || !referredBy || userId===referredBy) return res.json({ok:false});
   if(!users[userId]) users[userId]={balance:0.05,tasksCompleted:[],referralCount:0,ad1Count:0,ad1Date:'',ad2Count:0,ad2Date:'',ad3Count:0,ad3Date:'',checkinCount:0,checkinDate:'',referrals:[],referralEarnings:0,completedDays:[],referredBy:'', username:username||'', firstName:firstName||''};
-  if(!users[referredBy]) users[referredBy]={balance:0,tasksCompleted:[],referralCount:0,ad1Count:0,ad1Date:'',ad2Count:0,ad2Date:'',ad3Count:0,ad3Date:'',checkinCount:0,checkinDate:'',referrals:[],referralEarnings:0,completedDays:[],referralLink:`https://t.me/${BOT_USERNAME}?start=${referredBy}`};
+  if(!users[referredBy]) users[referredBy]={balance:0.05,tasksCompleted:[],referralCount:0,ad1Count:0,ad1Date:'',ad2Count:0,ad2Date:'',ad3Count:0,ad3Date:'',checkinCount:0,checkinDate:'',referrals:[],referralEarnings:0,completedDays:[],referralLink:`https://t.me/${BOT_USERNAME}?start=${referredBy}`};
   if(username) users[userId].username = username;
   if(firstName) users[userId].firstName = firstName;
   if(!users[userId].referredBy){ users[userId].referredBy=referredBy; }
@@ -329,6 +340,7 @@ app.post('/api/referral-join',(req,res)=>{
   }
   save(); res.json({ok:true});
 });
+
 app.post('/api/ai-chat',(req,res)=>{
   const {userId, message} = req.body;
   if(!message) return res.json({ok:false, msg:"No message"});
@@ -336,6 +348,7 @@ app.post('/api/ai-chat',(req,res)=>{
   const reply = getSmartAIReply(message, userData);
   res.json({ok:true, reply});
 });
+
 app.post('/api/withdraw', async (req,res)=>{
   const {userId, wallet, address, cryptoType, network, amount}=req.body;
   const joined = await isUserInChannel(userId);
@@ -358,16 +371,13 @@ app.post('/api/withdraw', async (req,res)=>{
   users[userId].balance-=totalAmount; 
   users[userId].lastNetwork = finalNetwork;
   save();
-  res.json({ok:true, msg:`✅ Withdraw $${totalAmount.toFixed(4)} sent! You receive $${receiveAmount.toFixed(4)} after 20% fee on ${finalNetwork}. Arrives in 1 minute!`, receive:receiveAmount, total:totalAmount});
+  res.json({ok:true, msg:`✅ Withdraw $${totalAmount.toFixed(4)} sent! You receive $${receiveAmount.toFixed(4)} after 20% fee on ${finalNetwork}.`, receive:receiveAmount, total:totalAmount});
 });
+
 app.get('/api/withdraws',(req,res)=>{
   const id=req.query.userId;
   res.json(withdraws.filter(w=>w.userId==id).reverse());
 });
-app.post('/api/add-task',(req,res)=>{
-  const {title,reward,link}=req.body;
-  tasks.push({id:Date.now(),title,reward,link});
-  saveTasks(); res.json({ok:true});
-});
+
 app.get('/',(req,res)=>res.sendFile(path.join(__dirname,'public','index.html')));
-app.listen(process.env.PORT||3000,()=>console.log('Running @'+BOT_USERNAME+' SPECIAL 5/day + ADS GALAXY 139 + FORCE JOIN'));
+app.listen(process.env.PORT||3000,()=>console.log('Running @'+BOT_USERNAME+' ADS PAYOUT - BALANCE FIXED - DAILY ADS RESET'));
