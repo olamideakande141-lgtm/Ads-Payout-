@@ -73,33 +73,70 @@ if(BOT_TOKEN){
   const isAdmin = (id) => ADMIN_IDS.includes(String(id));
 
   bot.start(async (ctx)=>{
-    const refId = ctx.startPayload;
-    const tgUser = ctx.from;
-    const uid = String(tgUser.id);
-    const tgUsername = tgUser.username ? '@'+tgUser.username : '';
-    const tgFirstName = tgUser.first_name || '';
-    let me = await User.findOne({ telegramId: uid });
-    if(!me){
-      me = await User.create({
-        telegramId: uid, balance:0.05, username: tgUsername, firstName: tgFirstName,
-        ad1Count:0, ad1Date:'', ad2Count:0, ad2Date:'', ad3Count:0, ad3Date:'',
-        checkinCount:0, checkinDate:'', streak:0, referrals:[], referredBy: refId||'',
-        completedDays:[], referralLink:`https://t.me/${BOT_USERNAME}?start=${uid}`, completedTasks:[], taskDailyCount:{}, createdAt: new Date()
-      });
-    }
-    if(refId && refId!==uid){
-      let refUser = await User.findOne({ telegramId: refId });
-      if(!refUser){
-        refUser = await User.create({ telegramId: refId, balance:0.05, referrals:[], referralLink:`https://t.me/${BOT_USERNAME}?start=${refId}` });
-      }
-      if(!refUser.referrals.find(r=>r.id===uid)){
-        refUser.referrals.push({ id:uid, username:tgUsername, firstName:tgFirstName, day1Complete:false, day1Date:'', day2Complete:false, day2Date:'', valid:false, date:new Date().toISOString() });
+  const refId = ctx.startPayload;
+  const tgUser = ctx.from;
+  const uid = String(tgUser.id);
+  const tgUsername = tgUser.username ? `@${tgUser.username}` : 'No username';
+  const tgFirstName = tgUser.first_name || 'User';
+
+  let me = await User.findOne({ telegramId: uid });
+  if(!me){
+    me = await User.create({
+      telegramId: uid,
+      balance: 0.05,
+      username: tgUsername,
+      ad1Count: 0, ad1Date: '', ad2Count: 0, ad2Date: '', ad3Count: 0, ad3Date: '',
+      checkinCount: 0, checkinDate: '',
+      completedDays: [],
+      referralLink: `https://t.me/${process.env.BOT_USERNAME}?start=${uid}`,
+      referredBy: refId || null,
+      referrals: [],
+      referralCount: 0,
+      referralEarnings: 0
+    });
+  }
+
+  if(refId && refId !== uid){
+    let refUser = await User.findOne({ telegramId: refId });
+    if(refUser){
+      if(!refUser.referrals.includes(uid)){
+        refUser.referrals.push(uid);
+        refUser.referralCount = refUser.referrals.length;
         await refUser.save();
       }
     }
-    const txt=`💎 ADS PAYOUT - INSTANT PAYOUTS\n\nWithdrawals arrive in MINUTES.\nMin $5 (20% fee)\n\nYour link: https://t.me/${BOT_USERNAME}?start=${uid}`;
-    ctx.reply(txt, Markup.inlineKeyboard([[Markup.button.webApp('🚀 Launch Ads Payout', MINI_APP_URL)], [Markup.button.url('📢 Join Channel', `https://t.me/${MY_CHANNEL.replace('@','')}`)]]));
-  });
+  }
+
+  const welcomeMsg = `💎 ADS PAYOUT - INSTANT PAYOUTS
+
+Many bots promise to pay, but they don't.
+We are different.
+
+⚡ Withdrawals arrive in MINUTES.
+💰 Real USDT - TRC20 / BEP20
+✅ No delays
+
+Minimum: $5 USDT (20% fee)
+You withdraw $5 → Get $4 in 1 minute!
+
+Referral: $0.025 per valid referral
+Valid = ALL ads (20+15+5) for 2 days
+
+Check-in: 10/day = $0.10/day max
+Your link: https://t.me/${process.env.BOT_USERNAME}?start=${uid}
+Username: ${tgUsername}
+
+Please:
+🙏 No fake referrals
+🙏 Stay active @freeearningofusdt
+
+Real users = Fast payments. Always`;
+
+  return ctx.reply(welcomeMsg, Markup.inlineKeyboard([
+    [Markup.button.webApp('🚀 Open App & Earn', process.env.MINI_APP_URL)],
+    [Markup.button.url('📢 Join Channel', `https://t.me/${process.env.CHANNEL || 'freeearningofusdt'}`)]
+  ]));
+});
 
   bot.command('admin', (ctx)=>{ 
     if(!isAdmin(ctx.from.id)) return ctx.reply('❌ Not admin'); 
