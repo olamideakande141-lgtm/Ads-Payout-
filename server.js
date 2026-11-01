@@ -72,12 +72,15 @@ if(BOT_TOKEN){
   bot.telegram.deleteWebhook({drop_pending_updates: true}).catch(()=>{});
   const isAdmin = (id) => ADMIN_IDS.includes(String(id));
 
-  bot.start(async (ctx)=>{
+    bot.start(async (ctx)=>{
+  try {
   const refId = ctx.startPayload;
   const tgUser = ctx.from;
   const uid = String(tgUser.id);
   const tgUsername = tgUser.username ? `@${tgUser.username}` : 'No username';
   const tgFirstName = tgUser.first_name || 'User';
+
+  console.log(`🚀 /start from: ${tgUsername} | ${tgFirstName} | ID: ${uid} | Ref: ${refId || 'none'}`);
 
   let me = await User.findOne({ telegramId: uid });
   if(!me){
@@ -85,24 +88,30 @@ if(BOT_TOKEN){
       telegramId: uid,
       balance: 0.05,
       username: tgUsername,
+      firstName: tgFirstName,
       ad1Count: 0, ad1Date: '', ad2Count: 0, ad2Date: '', ad3Count: 0, ad3Date: '',
       checkinCount: 0, checkinDate: '',
       completedDays: [],
-      referralLink: `https://t.me/${process.env.BOT_USERNAME}?start=${uid}`,
+      referralLink: `https://t.me/Realads01_bot?start=${uid}`,
       referredBy: refId || null,
       referrals: [],
       referralCount: 0,
       referralEarnings: 0
     });
+    console.log(`✅ NEW USER: ${tgUsername} (${uid})`);
+  } else {
+    console.log(`👋 OLD USER: ${tgUsername} (${uid}) - Balance: $${me.balance}`);
   }
 
   if(refId && refId !== uid){
     let refUser = await User.findOne({ telegramId: refId });
     if(refUser){
-      if(!refUser.referrals.includes(uid)){
+      const exists = refUser.referrals.some(r => typeof r === 'string' ? r === uid : r.id === uid);
+      if(!exists){
         refUser.referrals.push(uid);
         refUser.referralCount = refUser.referrals.length;
         await refUser.save();
+        console.log(`🔗 REFERRAL: ${tgUsername} (${uid}) referred by ${refId}`);
       }
     }
   }
@@ -123,7 +132,7 @@ Referral: $0.025 per valid referral
 Valid = ALL ads (20+15+5) for 2 days
 
 Check-in: 10/day = $0.10/day max
-Your link: https://t.me/${process.env.BOT_USERNAME}?start=${uid}
+Your link: https://t.me/Realads01_bot?start=${uid}
 Username: ${tgUsername}
 
 Please:
@@ -132,10 +141,17 @@ Please:
 
 Real users = Fast payments. Always`;
 
-  return ctx.reply(welcomeMsg, Markup.inlineKeyboard([
-    [Markup.button.webApp('🚀 Open App & Earn', process.env.MINI_APP_URL)],
-    [Markup.button.url('📢 Join Channel', `https://t.me/${process.env.CHANNEL || 'freeearningofusdt'}`)]
-  ]));
+  return ctx.reply(welcomeMsg, {
+    reply_markup: {
+      inline_keyboard: [
+        [{ text: "🚀 Open App & Earn", web_app: { url: "https://ads-payout-1.onrender.com" } }],
+        [{ text: "📢 Join Channel", url: "https://t.me/freeearningofusdt" }]
+      ]
+    }
+  });
+  } catch(e){
+    console.log('START ERROR:', e.message);
+  }
 });
 
   bot.command('admin', (ctx)=>{ 
