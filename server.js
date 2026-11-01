@@ -38,7 +38,10 @@ const UserSchema = new mongoose.Schema({
   referredBy: String,
   completedDays: { type: Array, default: [] },
   username: String, firstName: String,
-  referralLink: String
+  referralLink: String,
+  completedTasks: { type: Array, default: [] },
+  taskDailyCount: { type: Object, default: {} },
+  createdAt: { type: Date, default: Date.now }
 }, { strict: false });
 
 const WithdrawSchema = new mongoose.Schema({
@@ -47,7 +50,14 @@ const WithdrawSchema = new mongoose.Schema({
 }, { strict: false });
 
 const TaskSchema = new mongoose.Schema({
-  title: String, reward: Number, link: String, active: { type: Boolean, default: true }, createdAt: { type: Date, default: Date.now }
+  title: String, 
+  reward: Number, 
+  link: String, 
+  type: { type: String, enum: ['one-time','daily','unlimited','new-user'], default: 'one-time' },
+  dailyLimit: { type: Number, default: 3 },
+  newUserDays: { type: Number, default: 7 },
+  active: { type: Boolean, default: true }, 
+  createdAt: { type: Date, default: Date.now }
 });
 
 const User = mongoose.model('User', UserSchema);
@@ -74,7 +84,7 @@ if(BOT_TOKEN){
         telegramId: uid, balance:0.05, username: tgUsername, firstName: tgFirstName,
         ad1Count:0, ad1Date:'', ad2Count:0, ad2Date:'', ad3Count:0, ad3Date:'',
         checkinCount:0, checkinDate:'', streak:0, referrals:[], referredBy: refId||'',
-        completedDays:[], referralLink:`https://t.me/${BOT_USERNAME}?start=${uid}`
+        completedDays:[], referralLink:`https://t.me/${BOT_USERNAME}?start=${uid}`, completedTasks:[], taskDailyCount:{}, createdAt: new Date()
       });
     }
     if(refId && refId!==uid){
@@ -93,17 +103,24 @@ if(BOT_TOKEN){
 
   bot.command('admin', (ctx)=>{ 
     if(!isAdmin(ctx.from.id)) return ctx.reply('❌ Not admin'); 
-    ctx.reply(`👑 ADMIN PANEL`, Markup.inlineKeyboard([
+    ctx.reply(`👑 ADMIN PANEL - ALL OPTIONS`, Markup.inlineKeyboard([
       [Markup.button.callback('👥 Users Stats', 'adm_users'), Markup.button.callback('💸 Withdraws', 'adm_with')],
-      [Markup.button.callback('📝 Add Task', 'adm_add_task'), Markup.button.callback('📋 Tasks List', 'adm_tasks')]
+      [Markup.button.callback('📝 Add Task', 'adm_add_task'), Markup.button.callback('📋 Tasks List', 'adm_tasks')],
+      [Markup.button.callback('🗑 Delete All Tasks', 'adm_clear_tasks')]
     ])); 
   });
   bot.action('adm_users', async (ctx)=>{ if(!isAdmin(ctx.from.id)) return; const count = await User.countDocuments(); const total = await User.aggregate([{$group:{_id:null, sum:{$sum:"$balance"}}}]); ctx.reply(`👥 ${count} users\n💰 Total $${(total[0]?.sum||0).toFixed(2)}`); });
   bot.action('adm_with', async (ctx)=>{ if(!isAdmin(ctx.from.id)) return; const pending = await Withdraw.find({status:'Pending'}).limit(8); if(!pending.length) return ctx.reply('No pending'); pending.forEach(r=>{ ctx.reply(`💸 #${r.id}\n$${r.amount}-> $${r.receive}\n${r.wallet}\n${r.network}`, Markup.inlineKeyboard([[Markup.button.callback('✅ Approve', `app_${r.id}`), Markup.button.callback('❌ Reject', `rej_${r.id}`)]])); }); });
-  
-  // NEW TASK ADMIN
   bot.action('adm_add_task', async (ctx)=>{ if(!isAdmin(ctx.from.id)) return; pendingTask[ctx.from.id] = { step: 'title' }; ctx.reply('📝 Send TASK TITLE:\nExample: Join our Telegram'); });
-  bot.action('adm_tasks', async (ctx)=>{ if(!isAdmin(ctx.from.id)) return; const tasks = await Task.find().sort({createdAt:-1}).limit(10); if(!tasks.length) return ctx.reply('No tasks yet. Click Add Task'); let msg = `📋 TASKS LIST (${tasks.length}):\n\n`; tasks.forEach((t,i)=>{ msg += `${i+1}. ${t.title} - $${t.reward}\n${t.link}\nID: ${t._id}\n\n`; }); ctx.reply(msg); });
+  bot.action('adm_tasks', async (ctx)=>{ if(!isAdmin(ctx.from.id)) return; const tasks = await Task.find().sort({createdAt:-1}).limit(15); if(!tasks.length) return ctx.reply('No tasks yet. Click Add Task'); let msg = `📋 TASKS LIST (${tasks.length}):\n\n`; tasks.forEach((t,i)=>{ msg += `${i+1}. ${t.title} - $${t.reward} - ${t.type}\n${t.link}\nID: ${t._id}\n\n`; }); ctx.reply(msg); });
+  bot.action('adm_clear_tasks', async (ctx)=>{ if(!isAdmin(ctx.from.id)) return; ctx.reply('⚠️ Delete ALL tasks?', Markup.inlineKeyboard([[Markup.button.callback('✅ Yes Delete', 'confirm_clear'), Markup.button.callback('❌ Cancel', 'cancel_clear')]])); });
+  bot.action('confirm_clear', async (ctx)=>{ if(!isAdmin(ctx.from.id)) return; await Task.deleteMany({}); ctx.editMessageText('🗑 All tasks deleted!'); });
+  bot.action('cancel_clear', (ctx)=> ctx.editMessageText('Cancelled'));
+  
+  bot.action('type_one', async (ctx)=>{ if(!isAdmin(ctx.from.id)) return; pendingTask[ctx.from.id].type='one-time'; pendingTask[ctx.from.id].step='link'; await ctx.editMessageText('✅ Type: ONE-TIME (user once only)\n\nNow send TASK LINK:'); });
+  bot.action('type_daily', async (ctx)=>{ if(!isAdmin(ctx.from.id)) return; pendingTask[ctx.from.id].type='daily'; pendingTask[ctx.from.id].step='dailyLimit'; await ctx.editMessageText('✅ Type: DAILY LIMIT\n\nSend how many times per day? Example: 3'); });
+  bot.action('type_unlimited', async (ctx)=>{ if(!isAdmin(ctx.from.id)) return; pendingTask[ctx.from.id].type='unlimited'; pendingTask[ctx.from.id].step='link'; await ctx.editMessageText('✅ Type: UNLIMITED (no limit!)\n\nNow send TASK LINK:'); });
+  bot.action('type_newuser', async (ctx)=>{ if(!isAdmin(ctx.from.id)) return; pendingTask[ctx.from.id].type='new-user'; pendingTask[ctx.from.id].step='newUserDays'; await ctx.editMessageText('✅ Type: NEW USERS ONLY\n\nSend how many days is considered new? Example: 7'); });
   
   bot.action(/app_(.*)/, async (ctx)=>{ if(!isAdmin(ctx.from.id)) return; const id=ctx.match[1]; let w=await Withdraw.findOne({id}); if(w){ w.status='Approved'; await w.save(); ctx.editMessageText(`✅ APPROVED #${id}`); try{await bot.telegram.sendMessage(w.userId, `✅ Withdraw $${w.amount} Approved!`)}catch{} } });
   bot.action(/rej_(.*)/, async (ctx)=>{ if(!isAdmin(ctx.from.id)) return; const id=ctx.match[1]; let w=await Withdraw.findOne({id}); if(w){ w.status='Rejected'; await w.save(); let u=await User.findOne({telegramId:w.userId}); if(u){ u.balance+=w.amount; await u.save(); } ctx.editMessageText(`❌ REJECTED #${id} Refunded`); } });
@@ -113,9 +130,51 @@ if(BOT_TOKEN){
     if(!pendingTask[adminId] || !isAdmin(adminId)) return next();
     const state = pendingTask[adminId];
     const text = ctx.message.text.trim();
+    
     if(state.step === 'title'){ state.title = text; state.step = 'reward'; return ctx.reply(`💰 Title: ${text}\n\nNow send REWARD amount:\nExample: 0.01`); }
-    if(state.step === 'reward'){ const reward = parseFloat(text); if(isNaN(reward)){ return ctx.reply('❌ Invalid number. Send like 0.01'); } state.reward = reward; state.step = 'link'; return ctx.reply(`💰 Reward: $${reward}\n\nNow send TASK LINK:\nExample: https://t.me/yourchannel`); }
-    if(state.step === 'link'){ state.link = text; const task = await Task.create({ title: state.title, reward: state.reward, link: text, active: true }); delete pendingTask[adminId]; ctx.reply(`✅ TASK ADDED!\n\n📝 ${task.title}\n💰 $${task.reward}\n🔗 ${task.link}\n\nNow shows in Earn tab!`, Markup.inlineKeyboard([[Markup.button.callback('📋 View Tasks', 'adm_tasks')]])); }
+    
+    if(state.step === 'reward'){ 
+      const reward = parseFloat(text); 
+      if(isNaN(reward)){ return ctx.reply('❌ Invalid number. Send like 0.01'); } 
+      state.reward = reward; 
+      state.step = 'type'; 
+      return ctx.reply(`🔀 Choose Task Type:\n\n1️⃣ One-Time = User does once only (safe)\n2️⃣ Daily = Repeat daily with limit\n3️⃣ Unlimited = No limit (farm risk)\n4️⃣ New User Only = Only new users\n\nClick button below:`, 
+      Markup.inlineKeyboard([
+        [Markup.button.callback('1️⃣ One-Time', 'type_one'), Markup.button.callback('2️⃣ Daily', 'type_daily')],
+        [Markup.button.callback('3️⃣ Unlimited', 'type_unlimited'), Markup.button.callback('4️⃣ New Users Only', 'type_newuser')]
+      ])); 
+    }
+    
+    if(state.step === 'dailyLimit'){
+      const limit = parseInt(text);
+      if(isNaN(limit) || limit<1){ return ctx.reply('❌ Invalid, send number like 3'); }
+      state.dailyLimit = limit;
+      state.step = 'link';
+      return ctx.reply(`✅ Daily Limit: ${limit}/day\n\nNow send TASK LINK:\nExample: https://t.me/yourchannel`);
+    }
+    
+    if(state.step === 'newUserDays'){
+      const days = parseInt(text);
+      if(isNaN(days) || days<1){ return ctx.reply('❌ Invalid, send number like 7'); }
+      state.newUserDays = days;
+      state.step = 'link';
+      return ctx.reply(`✅ New User Days: First ${days} days\n\nNow send TASK LINK:\nExample: https://t.me/yourchannel`);
+    }
+    
+    if(state.step === 'link'){ 
+      state.link = text; 
+      const task = await Task.create({ 
+        title: state.title, 
+        reward: state.reward, 
+        link: text, 
+        type: state.type || 'one-time',
+        dailyLimit: state.dailyLimit || 3,
+        newUserDays: state.newUserDays || 7,
+        active: true 
+      }); 
+      delete pendingTask[adminId]; 
+      ctx.reply(`✅ TASK ADDED! [${task.type.toUpperCase()}]\n\n📝 ${task.title}\n💰 $${task.reward}\n🔗 ${task.link}\nType: ${task.type}\n${task.type==='daily'?'Limit: '+task.dailyLimit+'/day':''}\n${task.type==='new-user'?'For new users: first '+task.newUserDays+' days only':''}\n\nNow shows in Earn tab!`, Markup.inlineKeyboard([[Markup.button.callback('📋 View Tasks', 'adm_tasks')]])); 
+    }
   });
 
   bot.launch().then(()=>console.log('Bot @'+BOT_USERNAME)).catch(e=>console.log(e));
@@ -131,22 +190,81 @@ async function isUserInChannel(userId){
 app.get('/api/user', async (req,res)=>{
   const id=req.query.userId; const username=req.query.username?decodeURIComponent(req.query.username):''; const firstName=req.query.firstName?decodeURIComponent(req.query.firstName):'';
   let u = await User.findOne({telegramId:id});
-  if(!u){ u = await User.create({telegramId:id, balance:0.05, username, firstName, ad1Count:0, ad1Date:'', ad2Count:0, ad2Date:'', ad3Count:0, ad3Date:'', checkinCount:0, checkinDate:'', streak:0, referrals:[], referralLink:`https://t.me/${BOT_USERNAME}?start=${id}`}); }
+  if(!u){ u = await User.create({telegramId:id, balance:0.05, username, firstName, ad1Count:0, ad1Date:'', ad2Count:0, ad2Date:'', ad3Count:0, ad3Date:'', checkinCount:0, checkinDate:'', streak:0, referrals:[], referralLink:`https://t.me/${BOT_USERNAME}?start=${id}`, completedTasks:[], taskDailyCount:{}, createdAt: new Date()}); }
   if(username) u.username=username; if(firstName) u.firstName=firstName;
   const today=getToday();
   if(u.ad1Date!==today){ u.ad1Count=0; u.ad1Date=today; } if(u.ad2Date!==today){ u.ad2Count=0; u.ad2Date=today; } if(u.ad3Date!==today){ u.ad3Count=0; u.ad3Date=today; } if(u.checkinDate!==today){ u.checkinCount=0; u.checkinDate=today; }
   await u.save(); res.json(u);
 });
 app.get('/api/check-join', async (req,res)=>{ const joined=await isUserInChannel(req.query.userId); res.json({joined, channel:MY_CHANNEL}); });
-app.get('/api/tasks', async (req,res)=>{ const tasks = await Task.find({active:true}).sort({createdAt:-1}); res.json(tasks); });
+
+app.get('/api/tasks', async (req,res)=>{
+  const userId = req.query.userId;
+  let u = null;
+  if(userId) u = await User.findOne({telegramId:userId});
+  let tasks = await Task.find({active:true}).sort({createdAt:-1});
+  if(u){
+    const now = new Date();
+    tasks = tasks.filter(t=>{
+      if(t.type === 'new-user'){
+        const created = u.createdAt ? new Date(u.createdAt) : now;
+        const daysSinceJoin = (now - created) / (1000*60*60*24);
+        return daysSinceJoin <= (t.newUserDays || 7);
+      }
+      return true;
+    });
+  }
+  res.json(tasks);
+});
+
 app.post('/api/tasks/complete', async (req,res)=>{
   const {userId, taskId} = req.body;
-  let u = await User.findOne({telegramId:userId}); let t = await Task.findById(taskId);
+  let u = await User.findOne({telegramId:userId}); 
+  let t = await Task.findById(taskId);
   if(!u || !t) return res.json({ok:false, msg:'Not found'});
   if(!await isUserInChannel(userId)) return res.json({ok:false, msg:`Join ${MY_CHANNEL}`, needJoin:true});
-  u.balance += t.reward; await u.save();
+  
+  const today = new Date().toDateString();
+  
+  if(t.type === 'one-time' || t.type === 'new-user'){
+    if(u.completedTasks && u.completedTasks.includes(taskId)){
+      return res.json({ok:false, msg:'❌ Already done! One time only.'});
+    }
+  }
+  
+  if(t.type === 'daily'){
+    if(!u.taskDailyCount) u.taskDailyCount = {};
+    let entry = u.taskDailyCount[taskId];
+    if(!entry || entry.date !== today){
+      entry = { count: 0, date: today };
+    }
+    if(entry.count >= (t.dailyLimit || 3)){
+      return res.json({ok:false, msg:`❌ Daily limit ${t.dailyLimit}/day reached! Tomorrow.`});
+    }
+    entry.count++;
+    u.taskDailyCount[taskId] = entry;
+    u.markModified('taskDailyCount');
+  }
+  
+  if(t.type === 'new-user'){
+    const now = new Date();
+    const created = u.createdAt ? new Date(u.createdAt) : now;
+    const daysSinceJoin = (now - created) / (1000*60*60*24);
+    if(daysSinceJoin > (t.newUserDays || 7)){
+      return res.json({ok:false, msg:`❌ Only for new users (first ${t.newUserDays} days)`});
+    }
+  }
+  
+  u.balance += t.reward;
+  if(t.type === 'one-time' || t.type === 'new-user'){
+    if(!u.completedTasks) u.completedTasks = [];
+    u.completedTasks.push(taskId);
+    u.markModified('completedTasks');
+  }
+  await u.save();
   res.json({ok:true, reward:t.reward, balance:u.balance});
 });
+
 const adGalaxyUsed = new Set();
 app.post('/api/adsgalaxy-confirm', async (req,res)=>{
   const {userId, request_id, event_id, adType}=req.body;
@@ -188,11 +306,11 @@ app.post('/api/withdraw', async (req,res)=>{
 app.post('/api/ai-chat', async (req,res)=>{ res.json({ok:true, reply:"I am AI - Balance $"+(await User.findOne({telegramId:req.body.userId}))?.balance}); });
 app.post('/api/referral-join', async (req,res)=>{
   const {userId, referredBy, username, firstName}=req.body; if(!userId||!referredBy||userId===referredBy) return res.json({ok:false});
-  let me=await User.findOne({telegramId:userId}); if(!me) me=await User.create({telegramId:userId, username, firstName, balance:0.05, referrals:[], referredBy});
+  let me=await User.findOne({telegramId:userId}); if(!me) me=await User.create({telegramId:userId, username, firstName, balance:0.05, referrals:[], referredBy, completedTasks:[], taskDailyCount:{}, createdAt: new Date()});
   if(!me.referredBy) { me.referredBy=referredBy; await me.save(); }
   let ref=await User.findOne({telegramId:referredBy}); if(!ref) ref=await User.create({telegramId:referredBy, balance:0.05, referrals:[]});
   if(!ref.referrals.find(r=>r.id===userId)){ ref.referrals.push({id:userId, username, firstName, day1Complete:false, valid:false}); ref.markModified('referrals'); await ref.save(); }
   res.json({ok:true});
 });
 app.get('/',(req,res)=>res.sendFile(path.join(__dirname,'public','index.html')));
-app.listen(process.env.PORT||3000,()=>console.log('MongoDB Permanent Running'));
+app.listen(process.env.PORT||3000,()=>console.log('MongoDB Permanent Running - ALL OPTIONS'));
