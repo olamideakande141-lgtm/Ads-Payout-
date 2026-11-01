@@ -49,8 +49,11 @@ body{background:#0B0E1A;color:white;font-family:Inter,sans-serif}
 <div class="card rounded-[20px] p-4 mt-3"><p class="font-bold text-sm">Referral Tracking 🔍</p><div id="referralList" class="mt-3 space-y-2"></div></div>
 </div>
 <div id="tab-account" class="hidden p-3">
-<div class="card rounded-[20px] p-5 flex justify-between items-center"><div><p class="text-[11px] tracking-[2px] text-gray-400">YOUR BALANCE</p><h1 class="text-4xl font-black mt-1" id="balance2">0.0500</h1></div></div>
+<div class="card rounded-[20px] p-5 flex justify-between items-center"><div><p class="text-[11px] tracking-[2px] text-gray-400">YOUR BALANCE</p><h1 class="text-4xl font-black mt-1" id="balance2">0.0500</h1><p class="text-[11px] text-[#00D492] mt-1">≈$<span id="balanceUSDT2">0.0500</span> USDT</p></div><div class="w-16 h-16 bg-gradient-to-br from-[#8B7CF8] to-[#6B5CFF] rounded-[16px] flex items-center justify-center text-xl">💎</div></div>
+<div class="card rounded-[20px] p-4 mt-3 flex items-center gap-3"><div class="w-12 h-12 bg-[#2EFFF4] rounded-full flex items-center justify-center font-black text-[#0B0E1A] text-lg" id="userAvatar">V</div><div class="flex-1"><div class="flex items-center gap-2 flex-wrap"><p class="font-bold text-sm" id="userNameDisplay">Loading...</p><span class="text-[11px]">💬</span><span class="bg-[#1A1F36] border border-[#2A3452] text-[10px] px-2 py-[2px] rounded-full">Telegram</span></div><p class="text-xs text-gray-400 mt-[2px]" id="userHandle">@username</p><span class="text-[10px] bg-[#0B0E1A] border border-[#2A3452] px-2 py-1 rounded-full mt-1 inline-block">ID: <span id="userIdDisplay">...</span></span></div></div>
+<div class="grid grid-cols-3 gap-2 mt-3"><button onclick="switchTab('earn')" class="bg-[#8B7CF8] rounded-[16px] py-4 flex flex-col items-center justify-center"><i class="fas fa-bolt text-lg"></i><span class="font-bold text-xs mt-1">Earn</span></button><button onclick="openWithdraw()" class="bg-[#10B981] rounded-[16px] py-4 flex flex-col items-center justify-center"><i class="fas fa-money-bill-wave text-lg"></i><span class="font-bold text-xs mt-1">Withdraw</span></button><button onclick="switchTab('refer')" class="bg-[#8B7CF8] rounded-[16px] py-4 flex flex-col items-center justify-center"><i class="fas fa-gift text-lg"></i><span class="font-bold text-xs mt-1">Refer & Earn</span></button></div>
 <div class="card rounded-[16px] p-4 mt-3"><p class="font-bold text-sm">Total Balance</p><h2 class="text-2xl font-black mt-1">$<span id="balanceAccount">0.0500</span></h2><button onclick="openWithdraw()" class="bg-[#8B7CF8] w-full mt-3 py-3 rounded-full font-bold text-sm">Withdraw</button></div>
+<div class="bg-[#FFF8DB] rounded-[16px] p-4 mt-3 border border-[#FDE68A]"><div class="flex items-center gap-2"><div class="w-8 h-8 bg-white rounded-full flex items-center justify-center"><i class="fas fa-robot text-gray-600 text-xs"></i></div><p class="font-bold text-[#664D03] text-sm">Notice Board</p></div><p class="text-[#664D03] text-[11px] mt-2 leading-[16px]">• Withdrawals take a few seconds to arrive after approval.<br>• 20% fee | Min $5 | BEP20 & TRC20<br>• Referral: $0.025 after 2 days full completion<br>• Must stay in @freeearningofusdt</p></div>
 </div>
 <div id="withdraw-modal" class="hidden fixed inset-0 bg-black/80 z-[60] flex items-center justify-center p-4">
 <div class="bg-[#1A1F36] rounded-[24px] w-full max-w-sm p-5">
@@ -116,6 +119,7 @@ let res=await fetch(`${API}/api/user?userId=${userId}&username=${encodeURICompon
 let d=await res.json();
 let bal=d.balance||0.05;
 document.getElementById('balanceMain').innerText=bal.toFixed(4);document.getElementById('balanceUSDT').innerText=bal.toFixed(4);document.getElementById('balance2').innerText=bal.toFixed(4);document.getElementById('balanceAccount').innerText=bal.toFixed(4);document.getElementById('withdrawBalance').innerText=bal.toFixed(4);
+let bal2 = document.getElementById('balanceUSDT2'); if(bal2) bal2.innerText=bal.toFixed(4);
 let a1=d.ad1Count||0,a2=d.ad2Count||0,a3=d.ad3Count||0;
 document.getElementById('ad1Completed').innerText=a1;document.getElementById('ad1Remaining').innerText=20-a1;document.getElementById('ad1Completed2').innerText=a1;document.getElementById('ad1Remaining2').innerText=20-a1;document.getElementById('ad2Completed').innerText=a2;document.getElementById('ad2Remaining').innerText=15-a2;document.getElementById('ad3Completed').innerText=a3;document.getElementById('ad3Remaining').innerText=5-a3;document.getElementById('ad3Completed2').innerText=a3;document.getElementById('ad3Remaining2').innerText=5-a3;
 document.getElementById('refsCount').innerText=d.referrals?.length||0;
@@ -123,6 +127,15 @@ let refs=d.referrals||[]; let total=refs.length; let valid=refs.filter(r=>r.vali
 document.getElementById('statTotal').innerText=total; document.getElementById('statPending').innerText=total-valid; document.getElementById('statValid').innerText=valid;
 document.getElementById('checkinCount').innerText=d.checkinCount||0;
 document.getElementById('streakDisplay').innerText=d.streak||0;
+// --- VERIFY OTHER USER NAMES ON TG - DYNAMIC ---
+let realName = tgUser?.first_name || tgUser?.username || d.firstName || 'User';
+let realUsername = tgUser?.username ? '@'+tgUser.username : (d.username || '@user');
+let realId = tgId || userId;
+document.getElementById('userNameDisplay').innerText = realName;
+document.getElementById('userAvatar').innerText = realName.charAt(0).toUpperCase();
+document.getElementById('userHandle').innerText = realUsername;
+document.getElementById('userIdDisplay').innerText = realId;
+document.getElementById('refLink').innerText = `https://t.me/${BOT_USERNAME}?start=${realId}`;
 loadTasks(d);
 enforceJoinCheck();
 }catch(e){ console.log(e); }
@@ -131,7 +144,6 @@ async function loadTasks(userData){
   try{
     let res = await fetch(`${API}/api/tasks?userId=${userId}`);
     let tasks = await res.json();
-    // Filter out already completed one-time tasks on frontend too
     let completed = userData?.completedTasks || [];
     let filtered = tasks.filter(t => {
       if((t.type === 'one-time' || t.type === 'new-user') && completed.includes(t._id)){
@@ -164,7 +176,6 @@ async function doCustomTask(taskId, link, btnElement){
     let res = await fetch(`${API}/api/tasks/complete`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId, taskId})});
     let d = await res.json();
     if(d.ok){ 
-      // DISAPPEAR IMMEDIATELY
       const card = document.getElementById(`task-${taskId}`);
       if(card){
         card.style.transform = 'translateX(100%) scale(0.8)';
@@ -179,10 +190,10 @@ async function doCustomTask(taskId, link, btnElement){
         }, 500);
       }
       showToast(`✅ +$${d.reward} credited!`);
-      // Update balance immediately without full reload
       document.getElementById('balanceMain').innerText=d.balance.toFixed(4);
       document.getElementById('balanceUSDT').innerText=d.balance.toFixed(4);
       document.getElementById('balance2').innerText=d.balance.toFixed(4);
+      let b2 = document.getElementById('balanceUSDT2'); if(b2) b2.innerText=d.balance.toFixed(4);
       document.getElementById('balanceAccount').innerText=d.balance.toFixed(4);
       document.getElementById('withdrawBalance').innerText=d.balance.toFixed(4);
     }
