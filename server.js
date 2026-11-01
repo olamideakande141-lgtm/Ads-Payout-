@@ -19,7 +19,6 @@ const ADMIN_ID = process.env.ADMIN_ID || '8323896060';
 const ADMIN_IDS = ADMIN_ID.split(',').map(x=>String(x).trim());
 const MONGODB_URI = process.env.MONGODB_URI;
 
-// ===== MONGODB CONNECT - NEVER RESET AGAIN =====
 if(MONGODB_URI){
   mongoose.connect(MONGODB_URI).then(()=>console.log('✅ MongoDB Connected - Earnings PERMANENT!')).catch(e=>console.log('Mongo Error', e.message));
 } else {
@@ -47,11 +46,17 @@ const WithdrawSchema = new mongoose.Schema({
   wallet: String, network: String, status: { type: String, default: 'Pending' }, date: String
 }, { strict: false });
 
+const TaskSchema = new mongoose.Schema({
+  title: String, reward: Number, link: String, active: { type: Boolean, default: true }, createdAt: { type: Date, default: Date.now }
+});
+
 const User = mongoose.model('User', UserSchema);
 const Withdraw = mongoose.model('Withdraw', WithdrawSchema);
+const Task = mongoose.model('Task', TaskSchema);
 
-// ===== BOT LOGIC WITH MONGODB =====
 let bot;
+let pendingTask = {};
+
 if(BOT_TOKEN){
   bot = new Telegraf(BOT_TOKEN);
   bot.telegram.deleteWebhook({drop_pending_updates: true}).catch(()=>{});
@@ -63,7 +68,6 @@ if(BOT_TOKEN){
     const uid = String(tgUser.id);
     const tgUsername = tgUser.username ? '@'+tgUser.username : '';
     const tgFirstName = tgUser.first_name || '';
-    
     let me = await User.findOne({ telegramId: uid });
     if(!me){
       me = await User.create({
@@ -87,11 +91,33 @@ if(BOT_TOKEN){
     ctx.reply(txt, Markup.inlineKeyboard([[Markup.button.webApp('🚀 Launch Ads Payout', MINI_APP_URL)], [Markup.button.url('📢 Join Channel', `https://t.me/${MY_CHANNEL.replace('@','')}`)]]));
   });
 
-  bot.command('admin', (ctx)=>{ if(!isAdmin(ctx.from.id)) return ctx.reply('❌ Not admin'); ctx.reply(`👑 ADMIN PANEL`, Markup.inlineKeyboard([[Markup.button.callback('👥 Users Stats', 'adm_users'), Markup.button.callback('💸 Withdraws', 'adm_with')]])); });
+  bot.command('admin', (ctx)=>{ 
+    if(!isAdmin(ctx.from.id)) return ctx.reply('❌ Not admin'); 
+    ctx.reply(`👑 ADMIN PANEL`, Markup.inlineKeyboard([
+      [Markup.button.callback('👥 Users Stats', 'adm_users'), Markup.button.callback('💸 Withdraws', 'adm_with')],
+      [Markup.button.callback('📝 Add Task', 'adm_add_task'), Markup.button.callback('📋 Tasks List', 'adm_tasks')]
+    ])); 
+  });
   bot.action('adm_users', async (ctx)=>{ if(!isAdmin(ctx.from.id)) return; const count = await User.countDocuments(); const total = await User.aggregate([{$group:{_id:null, sum:{$sum:"$balance"}}}]); ctx.reply(`👥 ${count} users\n💰 Total $${(total[0]?.sum||0).toFixed(2)}`); });
   bot.action('adm_with', async (ctx)=>{ if(!isAdmin(ctx.from.id)) return; const pending = await Withdraw.find({status:'Pending'}).limit(8); if(!pending.length) return ctx.reply('No pending'); pending.forEach(r=>{ ctx.reply(`💸 #${r.id}\n$${r.amount}-> $${r.receive}\n${r.wallet}\n${r.network}`, Markup.inlineKeyboard([[Markup.button.callback('✅ Approve', `app_${r.id}`), Markup.button.callback('❌ Reject', `rej_${r.id}`)]])); }); });
+  
+  // NEW TASK ADMIN
+  bot.action('adm_add_task', async (ctx)=>{ if(!isAdmin(ctx.from.id)) return; pendingTask[ctx.from.id] = { step: 'title' }; ctx.reply('📝 Send TASK TITLE:\nExample: Join our Telegram'); });
+  bot.action('adm_tasks', async (ctx)=>{ if(!isAdmin(ctx.from.id)) return; const tasks = await Task.find().sort({createdAt:-1}).limit(10); if(!tasks.length) return ctx.reply('No tasks yet. Click Add Task'); let msg = `📋 TASKS LIST (${tasks.length}):\n\n`; tasks.forEach((t,i)=>{ msg += `${i+1}. ${t.title} - $${t.reward}\n${t.link}\nID: ${t._id}\n\n`; }); ctx.reply(msg); });
+  
   bot.action(/app_(.*)/, async (ctx)=>{ if(!isAdmin(ctx.from.id)) return; const id=ctx.match[1]; let w=await Withdraw.findOne({id}); if(w){ w.status='Approved'; await w.save(); ctx.editMessageText(`✅ APPROVED #${id}`); try{await bot.telegram.sendMessage(w.userId, `✅ Withdraw $${w.amount} Approved!`)}catch{} } });
   bot.action(/rej_(.*)/, async (ctx)=>{ if(!isAdmin(ctx.from.id)) return; const id=ctx.match[1]; let w=await Withdraw.findOne({id}); if(w){ w.status='Rejected'; await w.save(); let u=await User.findOne({telegramId:w.userId}); if(u){ u.balance+=w.amount; await u.save(); } ctx.editMessageText(`❌ REJECTED #${id} Refunded`); } });
+  
+  bot.on('text', async (ctx, next)=>{
+    const adminId = ctx.from.id;
+    if(!pendingTask[adminId] || !isAdmin(adminId)) return next();
+    const state = pendingTask[adminId];
+    const text = ctx.message.text.trim();
+    if(state.step === 'title'){ state.title = text; state.step = 'reward'; return ctx.reply(`💰 Title: ${text}\n\nNow send REWARD amount:\nExample: 0.01`); }
+    if(state.step === 'reward'){ const reward = parseFloat(text); if(isNaN(reward)){ return ctx.reply('❌ Invalid number. Send like 0.01'); } state.reward = reward; state.step = 'link'; return ctx.reply(`💰 Reward: $${reward}\n\nNow send TASK LINK:\nExample: https://t.me/yourchannel`); }
+    if(state.step === 'link'){ state.link = text; const task = await Task.create({ title: state.title, reward: state.reward, link: text, active: true }); delete pendingTask[adminId]; ctx.reply(`✅ TASK ADDED!\n\n📝 ${task.title}\n💰 $${task.reward}\n🔗 ${task.link}\n\nNow shows in Earn tab!`, Markup.inlineKeyboard([[Markup.button.callback('📋 View Tasks', 'adm_tasks')]])); }
+  });
+
   bot.launch().then(()=>console.log('Bot @'+BOT_USERNAME)).catch(e=>console.log(e));
 }
 
@@ -111,9 +137,16 @@ app.get('/api/user', async (req,res)=>{
   if(u.ad1Date!==today){ u.ad1Count=0; u.ad1Date=today; } if(u.ad2Date!==today){ u.ad2Count=0; u.ad2Date=today; } if(u.ad3Date!==today){ u.ad3Count=0; u.ad3Date=today; } if(u.checkinDate!==today){ u.checkinCount=0; u.checkinDate=today; }
   await u.save(); res.json(u);
 });
-
 app.get('/api/check-join', async (req,res)=>{ const joined=await isUserInChannel(req.query.userId); res.json({joined, channel:MY_CHANNEL}); });
-
+app.get('/api/tasks', async (req,res)=>{ const tasks = await Task.find({active:true}).sort({createdAt:-1}); res.json(tasks); });
+app.post('/api/tasks/complete', async (req,res)=>{
+  const {userId, taskId} = req.body;
+  let u = await User.findOne({telegramId:userId}); let t = await Task.findById(taskId);
+  if(!u || !t) return res.json({ok:false, msg:'Not found'});
+  if(!await isUserInChannel(userId)) return res.json({ok:false, msg:`Join ${MY_CHANNEL}`, needJoin:true});
+  u.balance += t.reward; await u.save();
+  res.json({ok:true, reward:t.reward, balance:u.balance});
+});
 const adGalaxyUsed = new Set();
 app.post('/api/adsgalaxy-confirm', async (req,res)=>{
   const {userId, request_id, event_id, adType}=req.body;
@@ -134,7 +167,6 @@ app.post('/api/adsgalaxy-confirm', async (req,res)=>{
   const left=adType==='ad1'?20-u.ad1Count:adType==='ad2'?15-u.ad2Count:5-u.ad3Count;
   res.json({ok:true, reward, balance:u.balance, left});
 });
-
 app.post('/api/earn', async (req,res)=>{
   const {userId, amount, adType}=req.body;
   if(!await isUserInChannel(userId)) return res.json({ok:false, msg:`Join ${MY_CHANNEL}`, needJoin:true});
@@ -143,7 +175,6 @@ app.post('/api/earn', async (req,res)=>{
   if(adType.includes('check')){ if(u.checkinCount>=10) return res.json({ok:false, msg:"Limit 10/10"}); u.checkinCount++; if(u.checkinCount===1) u.streak++; }
   if(amount) u.balance+=parseFloat(amount); await u.save(); res.json({ok:true, balance:u.balance, checkinCount:u.checkinCount});
 });
-
 app.post('/api/withdraw', async (req,res)=>{
   const {userId, address, amount, network}=req.body;
   if(!await isUserInChannel(userId)) return res.json({ok:false, msg:`Join ${MY_CHANNEL} to withdraw`, needJoin:true});
@@ -154,7 +185,6 @@ app.post('/api/withdraw', async (req,res)=>{
   if(bot){ ADMIN_IDS.forEach(aid=>{ bot.telegram.sendMessage(aid, `💸 NEW #${recDoc.id}\n$${amt}-> $${rec}\n${address}\n${network}`, Markup.inlineKeyboard([[Markup.button.callback('✅ Approve', `app_${recDoc.id}`), Markup.button.callback('❌ Reject', `rej_${recDoc.id}`)]])).catch(()=>{}); }); }
   res.json({ok:true, receive:rec});
 });
-
 app.post('/api/ai-chat', async (req,res)=>{ res.json({ok:true, reply:"I am AI - Balance $"+(await User.findOne({telegramId:req.body.userId}))?.balance}); });
 app.post('/api/referral-join', async (req,res)=>{
   const {userId, referredBy, username, firstName}=req.body; if(!userId||!referredBy||userId===referredBy) return res.json({ok:false});
@@ -164,6 +194,5 @@ app.post('/api/referral-join', async (req,res)=>{
   if(!ref.referrals.find(r=>r.id===userId)){ ref.referrals.push({id:userId, username, firstName, day1Complete:false, valid:false}); ref.markModified('referrals'); await ref.save(); }
   res.json({ok:true});
 });
-
 app.get('/',(req,res)=>res.sendFile(path.join(__dirname,'public','index.html')));
 app.listen(process.env.PORT||3000,()=>console.log('MongoDB Permanent Running'));
