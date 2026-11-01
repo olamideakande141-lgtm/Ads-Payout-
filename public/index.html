@@ -227,7 +227,8 @@ async function watchWithGalaxy(adType){
     if(!d.ok){ if(d.needJoin){ showForceJoin(d.channel); showToast(d.msg); return; } showToast(d.msg); loadUser(); return; }
     showToast(`✅ ${adType.toUpperCase()} +$${d.reward} credited! $${d.balance.toFixed(4)} | ${d.left} left`);
     loadUser();
-    setTimeout(()=>{ switchTab('home'); }, 1200);
+        showToast(`✅ ${adType.toUpperCase()} +$${d.reward} credited! $${d.balance.toFixed(4)} | ${d.left} left`);
+    loadUser();
   }catch(e){ console.log(e); showToast('❌ Ad not completed: '+(e.message||e.code||'closed')); }
 }
 async function watchAd1(){ await watchWithGalaxy('ad1'); }
