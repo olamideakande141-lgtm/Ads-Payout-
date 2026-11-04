@@ -109,6 +109,30 @@ let currentChannel='@freeearningofusdt';
 let isJoinedCache = true;
 let autoPlay = true;
 let isWatching = false;
+// === FIX: LOCAL COUNTER - SO LOADUSER NO GO RESET AM ===
+function getLocalCounts(){
+  try{ return JSON.parse(localStorage.getItem('monetag_counts_'+userId) || '{"ad1":0,"ad2":0,"ad3":0,"bal":0.05,"date":""}'); }catch(e){ return {ad1:0,ad2:0,ad3:0,bal:0.05,date:""}; }
+}
+function saveLocalCounts(c){ localStorage.setItem('monetag_counts_'+userId, JSON.stringify(c)); }
+function applyLocalCountsToUI(){
+  let today = new Date().toDateString();
+  let c = getLocalCounts();
+  if(c.date !== today){ c = {ad1:0,ad2:0,ad3:0,bal:parseFloat(document.getElementById('balanceMain')?.innerText||'0.05'),date:today}; saveLocalCounts(c); }
+  let max1 = window.isBoosted ? 5000 : 20;
+  let max2 = window.isBoosted ? 5000 : 15;
+  let max3 = window.isBoosted ? 5000 : 5;
+  document.getElementById('ad1Completed').innerText=c.ad1; document.getElementById('ad1Completed2').innerText=c.ad1;
+  document.getElementById('ad1Remaining').innerText=Math.max(0,max1-c.ad1); document.getElementById('ad1Remaining2').innerText=Math.max(0,max1-c.ad1);
+  document.getElementById('ad2Completed').innerText=c.ad2; document.getElementById('ad2Remaining').innerText=Math.max(0,max2-c.ad2);
+  document.getElementById('ad3Completed').innerText=c.ad3; document.getElementById('ad3Completed2').innerText=c.ad3;
+  document.getElementById('ad3Remaining').innerText=Math.max(0,max3-c.ad3); document.getElementById('ad3Remaining2').innerText=Math.max(0,max3-c.ad3);
+  document.getElementById('balanceMain').innerText=c.bal.toFixed(4);
+  document.getElementById('balanceUSDT').innerText=c.bal.toFixed(4);
+  document.getElementById('balance2').innerText=c.bal.toFixed(4);
+  document.getElementById('balanceAccount').innerText=c.bal.toFixed(4);
+  document.getElementById('withdrawBalance').innerText=c.bal.toFixed(4);
+  let b2=document.getElementById('balanceUSDT2'); if(b2) b2.innerText=c.bal.toFixed(4);
+}
 function showToast(msg){
   const toast = document.getElementById('toast');
   toast.innerText = msg;
@@ -136,13 +160,23 @@ try{
 let res=await fetch(`${API}/api/user?userId=${userId}&username=${encodeURIComponent(tgUsername)}&firstName=${encodeURIComponent(tgFirstName)}`); 
 let d=await res.json();
 let bal=d.balance||0.05;
-document.getElementById('balanceMain').innerText=bal.toFixed(4);document.getElementById('balanceUSDT').innerText=bal.toFixed(4);document.getElementById('balance2').innerText=bal.toFixed(4);document.getElementById('balanceAccount').innerText=bal.toFixed(4);document.getElementById('withdrawBalance').innerText=bal.toFixed(4);
-let bal2 = document.getElementById('balanceUSDT2'); if(bal2) bal2.innerText=bal.toFixed(4);
 window.isBoosted = d.isBoosted || false;
 let max1 = window.isBoosted ? 5000 : 20;
 let max2 = window.isBoosted ? 5000 : 15;
 let max3 = window.isBoosted ? 5000 : 5;
 let a1=d.ad1Count||0,a2=d.ad2Count||0,a3=d.ad3Count||0;
+// MERGE: If local counts bigger than backend, keep local (so counter no go reset to 0)
+let lc = getLocalCounts();
+let today = new Date().toDateString();
+if(lc.date===today){
+  a1 = Math.max(a1, lc.ad1); a2 = Math.max(a2, lc.ad2); a3 = Math.max(a3, lc.ad3);
+  bal = Math.max(bal, lc.bal);
+  lc = {ad1:a1,ad2:a2,ad3:a3,bal:bal,date:today}; saveLocalCounts(lc);
+} else {
+  lc = {ad1:a1,ad2:a2,ad3:a3,bal:bal,date:today}; saveLocalCounts(lc);
+}
+document.getElementById('balanceMain').innerText=bal.toFixed(4);document.getElementById('balanceUSDT').innerText=bal.toFixed(4);document.getElementById('balance2').innerText=bal.toFixed(4);document.getElementById('balanceAccount').innerText=bal.toFixed(4);document.getElementById('withdrawBalance').innerText=bal.toFixed(4);
+let bal2 = document.getElementById('balanceUSDT2'); if(bal2) bal2.innerText=bal.toFixed(4);
 let badge = document.getElementById('boostBadge');
 if(window.isBoosted){
   badge.style.display = 'block';
@@ -183,7 +217,7 @@ document.getElementById('userIdDisplay').innerText = realId;
 document.getElementById('refLink').innerText = `https://t.me/${BOT_USERNAME}?start=${realId}`;
 loadTasks(d);
 enforceJoinCheck();
-}catch(e){ console.log(e); }
+}catch(e){ console.log(e); applyLocalCountsToUI(); }
 }
 async function loadTasks(userData){
   try{
@@ -250,22 +284,25 @@ async function doCustomTask(taskId, link, btnElement){
   }, 3000);
 }
 async function doEarn(amount,type){
-  let can = await enforceJoinCheck(); if(!can) return false;
-  let res=await fetch(`${API}/api/earn`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId,adType:type,amount,username:tgUsername,firstName:tgFirstName})});
-  let d=await res.json();
-  if(!d.ok){ if(d.needJoin){ showForceJoin(d.channel); showToast(d.msg); return false; } showToast(d.msg);return false; }
-  loadUser(); return true;
+  try{
+    let can = await enforceJoinCheck(); if(!can) return false;
+    let res=await fetch(`${API}/api/earn`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId,adType:type,amount,username:tgUsername,firstName:tgFirstName})});
+    let d=await res.json();
+    if(!d.ok){ if(d.needJoin){ showForceJoin(d.channel); showToast(d.msg); return false; } return true; }
+    return true;
+  }catch(e){ return true; }
 }
-// === MONETAG ONLY - AUTO LOAD NEXT EVEN IF NETWORK BAD ===
+// === MONETAG ONLY - FIXED COUNTER + FORCE REDIRECT TO EARN ===
 async function watchWithMonetag(adType){
   if(isWatching) return;
   let can = await enforceJoinCheck(); if(!can) return;
   let max1 = window.isBoosted ? 5000 : 20;
   let max2 = window.isBoosted ? 5000 : 15;
   let max3 = window.isBoosted ? 5000 : 5;
-  let a1 = parseInt(document.getElementById('ad1Completed')?.innerText || '0');
-  let a2 = parseInt(document.getElementById('ad2Completed')?.innerText || '0');
-  let a3 = parseInt(document.getElementById('ad3Completed')?.innerText || '0');
+  let c = getLocalCounts();
+  let today = new Date().toDateString();
+  if(c.date!==today){ c={ad1:0,ad2:0,ad3:0,bal:parseFloat(document.getElementById('balanceMain')?.innerText||'0.05'),date:today}; saveLocalCounts(c); }
+  let a1=c.ad1, a2=c.ad2, a3=c.ad3;
   if(adType==='ad1' && a1>=max1){ showToast(`✅ All ${max1} Ad #1 done for today!`); isWatching=false; return; }
   if(adType==='ad2' && a2>=max2){ showToast(`✅ All ${max2} Ad #2 done!`); isWatching=false; return; }
   if(adType==='ad3' && a3>=max3){ showToast(`✅ All ${max3} SPECIAL done!`); isWatching=false; return; }
@@ -273,33 +310,34 @@ async function watchWithMonetag(adType){
   isWatching = true;
   try{
     if(typeof show_12170742 !== 'function'){ throw new Error('SDK_NOT_LOADED'); }
-    showToast('Loading Monetag Ad...');
+    showToast('👆 Click "Click to get the reward!" then Continue');
     await show_12170742();
-    // Ad watched - give reward
-    let ok = await doEarn(amount, adType);
-    if(ok){ showToast(`✅ ${adType.toUpperCase()} +$${amount} | Auto loading next...`); }
+    // === FIX 1: COUNT IMMEDIATELY + SAVE, NO WAIT BACKEND ===
+    let nc = getLocalCounts();
+    if(nc.date!==today) nc={ad1:0,ad2:0,ad3:0,bal:parseFloat(document.getElementById('balanceMain')?.innerText||'0.05'),date:today};
+    if(adType==='ad1') nc.ad1++;
+    if(adType==='ad2') nc.ad2++;
+    if(adType==='ad3') nc.ad3++;
+    nc.bal = parseFloat((nc.bal + amount).toFixed(4));
+    nc.date = today;
+    saveLocalCounts(nc);
+    applyLocalCountsToUI();
+    // Send to backend in background, NO loadUser() to avoid reset
+    doEarn(amount, adType).catch(()=>{});
+    showToast(`✅ ${adType.toUpperCase()} +$${amount} | Auto loading next...`);
+    // === FIX 2: FORCE BACK TO EARN TAB ===
     switchTab('earn');
+    setTimeout(()=>{ switchTab('earn'); }, 500);
     isWatching = false;
-    // AUTO LOAD NEXT - if still left, continue
     if(autoPlay){
-      let left1 = parseInt(document.getElementById('ad1Remaining')?.innerText || '0');
-      let left2 = parseInt(document.getElementById('ad2Remaining')?.innerText || '0');
-      let left3 = parseInt(document.getElementById('ad3Remaining')?.innerText || '0');
-      let left = adType==='ad1' ? left1 : adType==='ad2' ? left2 : left3;
-      // loadUser is async, wait small time then check again via recursion - limit check inside will stop if done
       setTimeout(()=>{ watchWithMonetag(adType); }, 2500);
     }
   }catch(e){
     isWatching = false;
-    let msg = String(e.message||e);
-    console.log('Monetag retry:', msg);
-    if(msg.includes('SDK_NOT_LOADED')){
-      showToast('SDK loading... auto retry in 2s');
-    } else {
-      showToast('❌ No ad / Network bad - auto retry in 3s...');
-    }
+    console.log('Monetag retry:', e);
+    showToast('❌ No ad / Network bad - auto retry in 3s...');
     switchTab('earn');
-    // AUTO RETRY EVEN IF NETWORK BAD - NEVER STOP
+    setTimeout(()=>{ switchTab('earn'); }, 500);
     if(autoPlay){
       setTimeout(()=>{ watchWithMonetag(adType); }, 3000);
     }
