@@ -109,7 +109,6 @@ let currentChannel='@freeearningofusdt';
 let isJoinedCache = true;
 let autoPlay = true;
 let isWatching = false;
-// === FIX: LOCAL COUNTER - SO LOADUSER NO GO RESET AM ===
 function getLocalCounts(){
   try{ return JSON.parse(localStorage.getItem('monetag_counts_'+userId) || '{"ad1":0,"ad2":0,"ad3":0,"bal":0.05,"date":""}'); }catch(e){ return {ad1:0,ad2:0,ad3:0,bal:0.05,date:""}; }
 }
@@ -165,7 +164,6 @@ let max1 = window.isBoosted ? 5000 : 20;
 let max2 = window.isBoosted ? 5000 : 15;
 let max3 = window.isBoosted ? 5000 : 5;
 let a1=d.ad1Count||0,a2=d.ad2Count||0,a3=d.ad3Count||0;
-// MERGE: If local counts bigger than backend, keep local (so counter no go reset to 0)
 let lc = getLocalCounts();
 let today = new Date().toDateString();
 if(lc.date===today){
@@ -292,7 +290,27 @@ async function doEarn(amount,type){
     return true;
   }catch(e){ return true; }
 }
-// === MONETAG ONLY - FIXED COUNTER + FORCE REDIRECT TO EARN ===
+// === 17 SEC RULE - CLICK WATCH -> 17 SEC -> AUTO COUNT + BACK TO EARN ===
+function finishAdAfter17Sec(adType, amount){
+  let today = new Date().toDateString();
+  let nc = getLocalCounts();
+  if(nc.date!==today) nc={ad1:0,ad2:0,ad3:0,bal:parseFloat(document.getElementById('balanceMain')?.innerText||'0.05'),date:today};
+  if(adType==='ad1') nc.ad1++;
+  if(adType==='ad2') nc.ad2++;
+  if(adType==='ad3') nc.ad3++;
+  nc.bal = parseFloat((nc.bal + amount).toFixed(4));
+  nc.date = today;
+  saveLocalCounts(nc);
+  applyLocalCountsToUI();
+  doEarn(amount, adType).catch(()=>{});
+  showToast(`✅ ${adType.toUpperCase()} +$${amount} | Back to Earn`);
+  switchTab('earn');
+  setTimeout(()=>{ switchTab('earn'); }, 500);
+  isWatching = false;
+  if(autoPlay){
+    setTimeout(()=>{ watchWithMonetag(adType); }, 2500);
+  }
+}
 async function watchWithMonetag(adType){
   if(isWatching) return;
   let can = await enforceJoinCheck(); if(!can) return;
@@ -308,36 +326,31 @@ async function watchWithMonetag(adType){
   if(adType==='ad3' && a3>=max3){ showToast(`✅ All ${max3} SPECIAL done!`); isWatching=false; return; }
   let amount = adType==='ad3' ? 0.01 : 0.005;
   isWatching = true;
+  let alreadyFinished = false;
+  function doFinishOnce(){
+    if(alreadyFinished) return;
+    alreadyFinished = true;
+    finishAdAfter17Sec(adType, amount);
+  }
+  let timer17 = setTimeout(()=>{
+    if(isWatching && !alreadyFinished){
+      showToast('⏱️ 17 sec done - Back to Earn...');
+      doFinishOnce();
+    }
+  }, 17000);
   try{
     if(typeof show_12170742 !== 'function'){ throw new Error('SDK_NOT_LOADED'); }
-    showToast('👆 Click "Click to get the reward!" then Continue');
+    showToast('⏱️ Ad started - 17 sec, back to Earn automatically');
     await show_12170742();
-    // === FIX 1: COUNT IMMEDIATELY + SAVE, NO WAIT BACKEND ===
-    let nc = getLocalCounts();
-    if(nc.date!==today) nc={ad1:0,ad2:0,ad3:0,bal:parseFloat(document.getElementById('balanceMain')?.innerText||'0.05'),date:today};
-    if(adType==='ad1') nc.ad1++;
-    if(adType==='ad2') nc.ad2++;
-    if(adType==='ad3') nc.ad3++;
-    nc.bal = parseFloat((nc.bal + amount).toFixed(4));
-    nc.date = today;
-    saveLocalCounts(nc);
-    applyLocalCountsToUI();
-    // Send to backend in background, NO loadUser() to avoid reset
-    doEarn(amount, adType).catch(()=>{});
-    showToast(`✅ ${adType.toUpperCase()} +$${amount} | Auto loading next...`);
-    // === FIX 2: FORCE BACK TO EARN TAB ===
-    switchTab('earn');
-    setTimeout(()=>{ switchTab('earn'); }, 500);
-    isWatching = false;
-    if(autoPlay){
-      setTimeout(()=>{ watchWithMonetag(adType); }, 2500);
-    }
+    clearTimeout(timer17);
+    doFinishOnce();
   }catch(e){
-    isWatching = false;
+    clearTimeout(timer17);
     console.log('Monetag retry:', e);
+    isWatching = false;
+    alreadyFinished = true;
     showToast('❌ No ad / Network bad - auto retry in 3s...');
     switchTab('earn');
-    setTimeout(()=>{ switchTab('earn'); }, 500);
     if(autoPlay){
       setTimeout(()=>{ watchWithMonetag(adType); }, 3000);
     }
