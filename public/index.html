@@ -120,7 +120,7 @@ body{background:#0B0E1A;color:white;font-family:Inter,sans-serif}
 </div>
 <script>
 const API=''; 
-const ADSGRAM_BLOCK_ID = 'int-58129';
+const ADSGRAM_BLOCK_ID = 'int-58140';
 let AdController = null;
 function getAdController(){
   if(AdController) return AdController;
@@ -145,7 +145,6 @@ let adCountdownInterval = null;
 let retryTimer = null;
 function stopAuto(){ autoPlay = false; isWatching = false; clearInterval(retryTimer); document.getElementById('adOverlay').style.display='none'; showToast('⏹ Auto stopped'); setTimeout(()=>{ autoPlay = true; }, 1000); }
 function startRetryCountdown(adType, msg){
-  // Show 5,4,3,2,1 countdown in overlay + toast, then retry
   let sec = 5;
   document.getElementById('adOverlay').style.display='flex';
   document.getElementById('adTimerPill').innerText = 'Auto Retry in 5 sec...';
@@ -372,7 +371,6 @@ function finishAdAfterCountDown(adType, amount){
   showToast(`✅ ${adType.toUpperCase()} +$${amount} - Auto Retry in 5 sec...`);
   forceToEarn();
   isWatching = false;
-  // AUTO CONTINUOUSLY - AUTO RETRY IN 5 SEC
   if(autoPlay){
     startRetryCountdown(adType, '✅ Reward added - Next Ad');
   }
@@ -401,7 +399,6 @@ async function watchWithHilltop(adType){
     document.getElementById('adOverlay').style.display='none';
     isWatching = false;
     showToast('AdsGram not loaded, Auto Retry in 5 sec...');
-    // NETWORK ISSUES - AUTO RETRY IN 5 SEC CONTINUOUSLY
     if(autoPlay) startRetryCountdown(adType, 'AdsGram not loaded');
     return;
   }
@@ -412,14 +409,12 @@ async function watchWithHilltop(adType){
     } else {
       isWatching = false;
       showToast('Watch full ad to get reward - Auto Retry in 5 sec...');
-      // User close early - AUTO RETRY IN 5 SEC CONTINUOUSLY
       if(autoPlay) startRetryCountdown(adType, 'Ad closed early');
     }
   }).catch((err)=>{
     document.getElementById('adOverlay').style.display='none';
     isWatching = false;
     console.log('AdsGram show error', err);
-    // NETWORK ISSUES - AUTO RETRY IN 5 SEC CONTINUOUSLY, NO STOP
     showToast('Network issue... Auto Retry in 5 sec...');
     if(autoPlay) startRetryCountdown(adType, 'Network issue');
   });
