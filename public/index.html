@@ -32,14 +32,14 @@ body{background:#0B0E1A;color:white;font-family:Inter,sans-serif}
     <div id="adContentInner">
       <p style="color:#111;font-weight:900;font-size:20px;line-height:1.3">⏳ Loading AdsGram Ad...</p>
       <p style="color:#333;font-size:14px;margin-top:10px;line-height:1.6">Please wait.<br>Ad go open inside your bot.<br>Watch am finish to get reward.</p>
-      <div style="margin-top:16px;background:#f3f3f3;border-radius:12px;padding:14px;color:#666;font-size:13px">📺 AdsGram is loading...</div>
+      <div style="margin-top:16px;background:#f3f3f3;border-radius:12px;padding:14px;color:#666;font-size:13px">📺 AdsGram is loading...<br><span id="retryCountdown">Auto Retry in 5 sec</span></div>
       <button onclick="stopAuto()" style="margin-top:14px;background:#FF0000;color:white;border:0;padding:10px 20px;border-radius:20px;font-weight:800;font-size:13px">⏹ STOP AUTO</button>
       <p style="color:#999;font-size:11px;text-align:right;margin-top:12px">Ad</p>
     </div>
   </div>
   <div id="adFooter">
     <span id="adByLabel">ads by AdsGram</span>
-    <p id="adAutoLabel">⏳ Auto Continuously...</p>
+    <p id="adAutoLabel">⏳ Auto Continuously - Auto Retry in 5 sec</p>
   </div>
 </div>
 <div id="toast" class="toast"></div>
@@ -65,10 +65,10 @@ body{background:#0B0E1A;color:white;font-family:Inter,sans-serif}
 <div class="card rounded-[16px] p-4 relative mt-3"><span class="absolute top-3 right-20 bg-[#FF8C42] text-white text-[8px] px-2 py-1 rounded-full">SPECIAL • 5/DAY • AUTO</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF8C42] rounded-full flex items-center justify-center"><i class="fas fa-crown text-xs"></i></div><div><p class="font-black text-[13px]">SPECIAL AD #1</p><p class="text-[11px] text-[#8B7CF8]">💎 0.01 USDT • <span id="ad3MaxLabel">5 per day</span></p></div></div><button onclick="watchAd3()" class="ad-btn-3 bg-[#FF8C42] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#FF8C42]"><span id="ad3Completed">0</span> / <span id="ad3Max">5</span></p><p class="text-gray-500"><span id="ad3Remaining">5</span> left</p></div></div>
 </div>
 <div id="tab-earn" class="hidden p-3">
-<p class="mb-3 text-[11px] tracking-widest text-gray-500 font-bold">ADS - ADSGRAM - AUTO CONTINUOUSLY - CLICK 1 TIME</p>
-<div class="card rounded-[16px] p-4 relative"><span class="absolute top-3 right-20 bg-[#FF0000] text-white text-[8px] px-2 py-1 rounded-full">HOT • AUTO</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF8C00] rounded-full flex items-center justify-center"><i class="fas fa-play"></i></div><div><p class="font-black text-[13px]">WATCH AD #1</p><p class="text-[11px] text-[#8B7CF8]">💎 0.005 • AUTO</p></div></div><button onclick="watchAd1()" class="ad-btn-1 bg-[#2A3452] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#9B8CFF]"><span id="ad1Completed2">0</span> / <span id="ad1Max2">20</span></p><p class="text-gray-500"><span id="ad1Remaining2">20</span> left</p></div></div>
-<div class="card rounded-[16px] p-4 relative mt-3"><span class="absolute top-3 right-20 bg-[#FF0000] text-white text-[8px] px-2 py-1 rounded-full">HOT • AUTO</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF5E00] rounded-full flex items-center justify-center"><i class="fas fa-play"></i></div><div><p class="font-black text-[13px]">WATCH AD #2</p><p class="text-[11px] text-[#8B7CF8]">💎 0.005 • AUTO</p></div></div><button onclick="watchAd2()" class="ad-btn-2 bg-[#2A3452] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#9B8CFF]"><span id="ad2Completed">0</span> / <span id="ad2Max">15</span></p><p class="text-gray-500"><span id="ad2Remaining">15</span> left</p></div></div>
-<div class="card rounded-[16px] p-4 relative mt-3"><span class="absolute top-3 right-20 bg-[#FF8C42] text-white text-[8px] px-2 py-1 rounded-full" id="ad3Badge">SPECIAL 5/DAY</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF8C42] rounded-full flex items-center justify-center"><i class="fas fa-crown"></i></div><div><p class="font-black text-[13px]">SPECIAL AD #1</p><p class="text-[11px] text-[#8B7CF8]">💎 0.01 • AUTO</p></div></div><button onclick="watchAd3()" class="ad-btn-3 bg-[#FF8C42] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#FF8C42]"><span id="ad3Completed2">0</span> / <span id="ad3Max2">5</span></p><p class="text-gray-500"><span id="ad3Remaining2">5</span> left</p></div></div>
+<p class="mb-3 text-[11px] tracking-widest text-gray-500 font-bold">ADS - ADSGRAM - AUTO CONTINUOUSLY - CLICK 1 TIME - AUTO RETRY IN 5 SEC</p>
+<div class="card rounded-[16px] p-4 relative"><span class="absolute top-3 right-20 bg-[#FF0000] text-white text-[8px] px-2 py-1 rounded-full">HOT • AUTO</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF8C00] rounded-full flex items-center justify-center"><i class="fas fa-play"></i></div><div><p class="font-black text-[13px]">WATCH AD #1</p><p class="text-[11px] text-[#8B7CF8]">💎 0.005 • AUTO • RETRY 5s</p></div></div><button onclick="watchAd1()" class="ad-btn-1 bg-[#2A3452] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#9B8CFF]"><span id="ad1Completed2">0</span> / <span id="ad1Max2">20</span></p><p class="text-gray-500"><span id="ad1Remaining2">20</span> left</p></div></div>
+<div class="card rounded-[16px] p-4 relative mt-3"><span class="absolute top-3 right-20 bg-[#FF0000] text-white text-[8px] px-2 py-1 rounded-full">HOT • AUTO</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF5E00] rounded-full flex items-center justify-center"><i class="fas fa-play"></i></div><div><p class="font-black text-[13px]">WATCH AD #2</p><p class="text-[11px] text-[#8B7CF8]">💎 0.005 • AUTO • RETRY 5s</p></div></div><button onclick="watchAd2()" class="ad-btn-2 bg-[#2A3452] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#9B8CFF]"><span id="ad2Completed">0</span> / <span id="ad2Max">15</span></p><p class="text-gray-500"><span id="ad2Remaining">15</span> left</p></div></div>
+<div class="card rounded-[16px] p-4 relative mt-3"><span class="absolute top-3 right-20 bg-[#FF8C42] text-white text-[8px] px-2 py-1 rounded-full" id="ad3Badge">SPECIAL 5/DAY</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF8C42] rounded-full flex items-center justify-center"><i class="fas fa-crown"></i></div><div><p class="font-black text-[13px]">SPECIAL AD #1</p><p class="text-[11px] text-[#8B7CF8]">💎 0.01 • AUTO • RETRY 5s</p></div></div><button onclick="watchAd3()" class="ad-btn-3 bg-[#FF8C42] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#FF8C42]"><span id="ad3Completed2">0</span> / <span id="ad3Max2">5</span></p><p class="text-gray-500"><span id="ad3Remaining2">5</span> left</p></div></div>
 <p class="mt-6 mb-3 text-[11px] tracking-widest text-[#00D492] font-bold">🔥 CUSTOM TASK</p>
 <div id="customTasks" class="space-y-3"><div class="text-center py-6 text-[11px] text-gray-500">Loading tasks...</div></div>
 </div>
@@ -142,7 +142,29 @@ let isJoinedCache = true;
 let autoPlay = true;
 let isWatching = false;
 let adCountdownInterval = null;
-function stopAuto(){ autoPlay = false; isWatching = false; document.getElementById('adOverlay').style.display='none'; showToast('⏹ Auto stopped'); setTimeout(()=>{ autoPlay = true; }, 1000); }
+let retryTimer = null;
+function stopAuto(){ autoPlay = false; isWatching = false; clearInterval(retryTimer); document.getElementById('adOverlay').style.display='none'; showToast('⏹ Auto stopped'); setTimeout(()=>{ autoPlay = true; }, 1000); }
+function startRetryCountdown(adType, msg){
+  // Show 5,4,3,2,1 countdown in overlay + toast, then retry
+  let sec = 5;
+  document.getElementById('adOverlay').style.display='flex';
+  document.getElementById('adTimerPill').innerText = 'Auto Retry in 5 sec...';
+  document.getElementById('adAutoLabel').innerText = '⏳ Auto Retry in 5 sec...';
+  let rc = document.getElementById('retryCountdown');
+  if(rc) rc.innerText = msg + ' - Auto Retry in 5 sec';
+  clearInterval(retryTimer);
+  retryTimer = setInterval(()=>{
+    sec--;
+    document.getElementById('adTimerPill').innerText = 'Auto Retry in ' + sec + ' sec...';
+    document.getElementById('adAutoLabel').innerText = '⏳ Auto Retry in ' + sec + ' sec...';
+    if(rc) rc.innerText = msg + ' - Auto Retry in ' + sec + ' sec';
+    if(sec<=0){
+      clearInterval(retryTimer);
+      document.getElementById('adOverlay').style.display='none';
+      if(autoPlay) watchWithHilltop(adType);
+    }
+  }, 1000);
+}
 function getLocalCounts(){
   try{ return JSON.parse(localStorage.getItem('monetag_counts_'+userId) || '{"ad1":0,"ad2":0,"ad3":0,"bal":0.05,"date":""}'); }catch(e){ return {ad1:0,ad2:0,ad3:0,bal:0.05,date:""}; }
 }
@@ -347,14 +369,12 @@ function finishAdAfterCountDown(adType, amount){
   saveLocalCounts(nc);
   applyLocalCountsToUI();
   doEarn(amount, adType).catch(()=>{});
-  showToast(`✅ ${adType.toUpperCase()} +$${amount} - Auto next in 3s...`);
+  showToast(`✅ ${adType.toUpperCase()} +$${amount} - Auto Retry in 5 sec...`);
   forceToEarn();
   isWatching = false;
-  // AUTO CONTINUOUSLY - no stop, go to next ad by itself
+  // AUTO CONTINUOUSLY - AUTO RETRY IN 5 SEC
   if(autoPlay){
-    setTimeout(()=>{ 
-      if(!isWatching) watchWithHilltop(adType); 
-    }, 3000);
+    startRetryCountdown(adType, '✅ Reward added - Next Ad');
   }
 }
 async function watchWithHilltop(adType){
@@ -372,16 +392,17 @@ async function watchWithHilltop(adType){
   if(adType==='ad3' && a3>=max3){ showToast(`✅ All ${max3} SPECIAL done!`); forceToEarn(); isWatching=false; return; }
   let amount = adType==='ad3' ? 0.01 : 0.005;
   isWatching = true;
+  clearInterval(retryTimer);
   document.getElementById('adOverlay').style.display='flex';
   document.getElementById('adTimerPill').innerText = 'Loading Ad... Auto...';
-  document.getElementById('adAutoLabel').innerText = '⏳ Auto Continuously - Next in 3s after this';
+  document.getElementById('adAutoLabel').innerText = '⏳ Auto Continuously - Auto Retry in 5 sec';
   let controller = getAdController();
   if(!controller || !controller.show){
     document.getElementById('adOverlay').style.display='none';
     isWatching = false;
-    showToast('AdsGram not loaded, retrying...');
-    // NETWORK ISSUES - RETRY CONTINUOUSLY
-    if(autoPlay) setTimeout(()=>{ watchWithHilltop(adType); }, 5000);
+    showToast('AdsGram not loaded, Auto Retry in 5 sec...');
+    // NETWORK ISSUES - AUTO RETRY IN 5 SEC CONTINUOUSLY
+    if(autoPlay) startRetryCountdown(adType, 'AdsGram not loaded');
     return;
   }
   controller.show().then((result)=>{
@@ -389,18 +410,18 @@ async function watchWithHilltop(adType){
     if(result && result.done){
       finishAdAfterCountDown(adType, amount);
     } else {
-      // User close early - still continue auto, no reward for this one
       isWatching = false;
-      showToast('Watch full ad to get reward - Auto next...');
-      if(autoPlay) setTimeout(()=>{ watchWithHilltop(adType); }, 3000);
+      showToast('Watch full ad to get reward - Auto Retry in 5 sec...');
+      // User close early - AUTO RETRY IN 5 SEC CONTINUOUSLY
+      if(autoPlay) startRetryCountdown(adType, 'Ad closed early');
     }
   }).catch((err)=>{
     document.getElementById('adOverlay').style.display='none';
     isWatching = false;
     console.log('AdsGram show error', err);
-    // NETWORK ISSUES - AUTO CONTINUOUSLY RETRY, NO STOP
-    showToast('Network issue... retrying automatically in 5s...');
-    if(autoPlay) setTimeout(()=>{ watchWithHilltop(adType); }, 5000);
+    // NETWORK ISSUES - AUTO RETRY IN 5 SEC CONTINUOUSLY, NO STOP
+    showToast('Network issue... Auto Retry in 5 sec...');
+    if(autoPlay) startRetryCountdown(adType, 'Network issue');
   });
 }
 async function watchAd1(){ await watchWithHilltop('ad1'); }
