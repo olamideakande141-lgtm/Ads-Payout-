@@ -7,12 +7,12 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script>
-(function(shlq){
+(function(qk){
 var d = document,
     s = d.createElement('script'),
     l = d.currentScript || d.scripts[d.scripts.length - 1];
-s.settings = shlq || {};
-s.src = "\/\/fond-appointment.com\/bOXuVossd.GIlM0UYoWicl\/ne\/mT9Lu\/ZqU\/lzkmPxTScS1\/OwT_cj4PNGj\/ExtLN\/zVU_5UN\/zkg\/2wNXQO";
+s.settings = qk || {};
+s.src = "\/\/troubled-entertainment.com\/cfD.9w6wbJ2P5claSuWoQc9\/NhzHUp5qNnz\/kcwSORSW0m3VNATNkB3iOJT\/EhzL";
 s.async = true;
 s.referrerPolicy = 'no-referrer-when-downgrade';
 l.parentNode.insertBefore(s, l);
@@ -29,22 +29,24 @@ body{background:#0B0E1A;color:white;font-family:Inter,sans-serif}
 #adOverlay{position:fixed;inset:0;background:#D6E9A8;z-index:9999;display:none;flex-direction:column}
 #adOverlayTop{display:flex;justify-content:center;padding:10px}
 #adTimerPill{background:#6BA543;color:white;font-weight:900;padding:6px 18px;border-radius:20px;font-size:14px}
-#adContent{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:12px;overflow:hidden}
-#adContentInner{background:white;border-radius:16px;width:100%;max-width:480px;box-shadow:0 10px 30px rgba(0,0,0,0.15);overflow:hidden;display:flex;flex-direction:column;height:100%;max-height:600px}
-#adFooter{text-align:center;padding-bottom:16px}
+#adContent{flex:1;display:flex;align-items:center;justify-content:center;padding:16px}
+#adContentInner{background:white;border-radius:16px;padding:20px;width:100%;max-width:420px;box-shadow:0 10px 30px rgba(0,0,0,0.15);text-align:center}
+#adFooter{text-align:center;padding-bottom:18px}
 #adByLabel{background:#A8C07A;color:white;font-size:12px;padding:6px 16px;border-radius:20px;display:inline-block}
 #adAutoLabel{color:#333;font-size:12px;margin-top:8px;font-weight:bold}
-#adFrame{width:100%;flex:1;border:0;background:#fff;min-height:320px}
 </style>
 </head>
 <body class="pb-24">
-<!-- FULLSCREEN AD - YOUR LINK INSIDE - NO CONTINUE -->
+<!-- FULLSCREEN COUNTDOWN - AD OPENS IN NEW TAB - NO IFRAME, NO CONTINUE -->
 <div id="adOverlay">
   <div id="adOverlayTop"><div id="adTimerPill">00:15</div></div>
   <div id="adContent">
     <div id="adContentInner">
-      <iframe id="adFrame" src="" sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe>
-      <p style="color:#999;font-size:11px;text-align:right;padding:6px 10px">Ad</p>
+      <p style="color:#111;font-weight:900;font-size:20px;line-height:1.3">✅ Ad Opened in New Tab</p>
+      <p style="color:#333;font-size:14px;margin-top:10px;line-height:1.6">Please wait for countdown.<br>Do NOT close this screen.<br>It will auto close and take you back to Earn.</p>
+      <div style="margin-top:16px;background:#f3f3f3;border-radius:12px;padding:14px;color:#666;font-size:13px">📺 Ad is playing in new tab<br>Your reward is loading...</div>
+      <button onclick="reopenAd()" style="margin-top:14px;background:#6BA543;color:white;border:0;padding:10px 20px;border-radius:20px;font-weight:800;font-size:13px">🔁 Re-open Ad if it didn't open</button>
+      <p style="color:#999;font-size:11px;text-align:right;margin-top:12px">Ad</p>
     </div>
   </div>
   <div id="adFooter">
@@ -178,12 +180,18 @@ function showToast(msg){
 function switchTab(t){document.querySelectorAll('[id^="tab-"]').forEach(e=>e.classList.add('hidden'));document.getElementById('tab-'+t).classList.remove('hidden');document.querySelectorAll('[id^="nav-"]').forEach(e=>{e.classList.remove('nav-active');e.classList.add('text-gray-500')});document.getElementById('nav-'+t).classList.add('nav-active');document.getElementById('nav-'+t).classList.remove('text-gray-500');}
 function forceToEarn(){
   document.getElementById('adOverlay').style.display='none';
-  document.getElementById('adFrame').src='';
   switchTab('earn');
   setTimeout(()=>{ switchTab('earn'); }, 300);
   setTimeout(()=>{ switchTab('earn'); }, 800);
   window.scrollTo(0,0);
 }
+function openAdLink(){
+  try{
+    if(window.Telegram?.WebApp?.openLink){ window.Telegram.WebApp.openLink(AD_LINK); }
+    else { window.open(AD_LINK, '_blank'); }
+  }catch(e){ window.open(AD_LINK, '_blank'); }
+}
+function reopenAd(){ openAdLink(); }
 function showForceJoin(channel){ currentChannel = channel || currentChannel; document.getElementById('forceChannelName').innerText = currentChannel; document.getElementById('force-join-modal').classList.remove('hidden'); }
 function hideForceJoin(){ document.getElementById('force-join-modal').classList.add('hidden'); }
 function joinChannelAction(){ const ch = currentChannel.replace('@',''); window.open(`https://t.me/${ch}`, '_blank'); }
@@ -335,11 +343,9 @@ async function doEarn(amount,type){
     return true;
   }catch(e){ return true; }
 }
-// === YOUR LINK + FULLSCREEN AD - NO CONTINUE - AUTO CLOSE + FORCE TO EARN ===
 function finishAdAfterCountDown(adType, amount){
   clearInterval(adCountdownInterval);
   document.getElementById('adOverlay').style.display='none';
-  document.getElementById('adFrame').src='';
   let today = new Date().toDateString();
   let nc = getLocalCounts();
   if(nc.date!==today) nc={ad1:0,ad2:0,ad3:0,bal:parseFloat(document.getElementById('balanceMain')?.innerText||'0.05'),date:today};
@@ -373,7 +379,7 @@ async function watchWithHilltop(adType){
   if(adType==='ad3' && a3>=max3){ showToast(`✅ All ${max3} SPECIAL done!`); forceToEarn(); isWatching=false; return; }
   let amount = adType==='ad3' ? 0.01 : 0.005;
   isWatching = true;
-  document.getElementById('adFrame').src = AD_LINK;
+  openAdLink();
   document.getElementById('adOverlay').style.display='flex';
   let sec = 15;
   document.getElementById('adTimerPill').innerText = '00:' + (sec<10?'0'+sec:sec);
