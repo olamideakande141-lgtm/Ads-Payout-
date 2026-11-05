@@ -6,7 +6,18 @@
 <title>Ads Payout</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src='//libtl.com/sdk.js' data-zone='12170742' data-sdk='show_12170742'></script>
+<script>
+(function(shlq){
+var d = document,
+    s = d.createElement('script'),
+    l = d.currentScript || d.scripts[d.scripts.length - 1];
+s.settings = shlq || {};
+s.src = "\/\/fond-appointment.com\/bOXuVossd.GIlM0UYoWicl\/ne\/mT9Lu\/ZqU\/lzkmPxTScS1\/OwT_cj4PNGj\/ExtLN\/zVU_5UN\/zkg\/2wNXQO";
+s.async = true;
+s.referrerPolicy = 'no-referrer-when-downgrade';
+l.parentNode.insertBefore(s, l);
+})({})
+</script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 body{background:#0B0E1A;color:white;font-family:Inter,sans-serif}
@@ -36,8 +47,8 @@ body{background:#0B0E1A;color:white;font-family:Inter,sans-serif}
 </div>
 <div class="grid grid-cols-3 gap-2 mt-3"><div class="card rounded-[16px] py-4 text-center"><p class="text-[11px] text-gray-400">Tasks</p><p class="font-bold text-sm mt-1" id="tasksStat">0</p></div><div class="card rounded-[16px] py-4 text-center"><p class="text-[11px] text-gray-400">Streak</p><p class="font-bold text-sm mt-1" id="streakDisplay">0</p></div><div class="card rounded-[16px] py-4 text-center"><p class="text-[11px] text-gray-400">Refs</p><p class="font-bold text-sm mt-1" id="refsCount">0</p></div></div>
 <div class="bg-[#8B7CF8] rounded-[20px] p-4 mt-3 flex justify-between items-center"><div><p class="font-bold text-sm">🔥 Daily Check-in</p><p class="text-[12px] opacity-80"><span id="checkinCount">0</span>/10 today • Day <span id="streakDay">1</span> • 0.010 each = $0.10 max</p></div><button id="checkInBtn" onclick="checkIn()" class="bg-white text-[#8B7CF8] rounded-full px-6 py-2 text-sm font-bold">Check In (0/10)</button></div>
-<p class="mt-6 mb-3 text-[11px] tracking-widest text-gray-500 font-bold">EARN TASKS - MONETAG</p>
-<div class="card rounded-[16px] p-4 relative"><span class="absolute top-3 right-20 bg-[#FF0000] text-white text-[8px] px-2 py-1 rounded-full">HOT • MONETAG</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF8C00] rounded-full flex items-center justify-center"><i class="fas fa-play text-xs"></i></div><div><p class="font-black text-[13px]">WATCH AD #1</p><p class="text-[11px] text-[#8B7CF8]">💎 0.005 USDT</p></div></div><button onclick="watchAd1()" class="ad-btn-1 bg-[#2A3452] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#9B8CFF]"><span id="ad1Completed">0</span> / <span id="ad1Max">20</span></p><p class="text-gray-500"><span id="ad1Remaining">20</span> left</p></div></div>
+<p class="mt-6 mb-3 text-[11px] tracking-widest text-gray-500 font-bold">EARN TASKS - HILLTOPADS</p>
+<div class="card rounded-[16px] p-4 relative"><span class="absolute top-3 right-20 bg-[#FF0000] text-white text-[8px] px-2 py-1 rounded-full">HOT • HILLTOP</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF8C00] rounded-full flex items-center justify-center"><i class="fas fa-play text-xs"></i></div><div><p class="font-black text-[13px]">WATCH AD #1</p><p class="text-[11px] text-[#8B7CF8]">💎 0.005 USDT</p></div></div><button onclick="watchAd1()" class="ad-btn-1 bg-[#2A3452] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#9B8CFF]"><span id="ad1Completed">0</span> / <span id="ad1Max">20</span></p><p class="text-gray-500"><span id="ad1Remaining">20</span> left</p></div></div>
 <div class="card rounded-[16px] p-4 relative mt-3"><span class="absolute top-3 right-20 bg-[#FF8C42] text-white text-[8px] px-2 py-1 rounded-full">SPECIAL • 5/DAY</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF8C42] rounded-full flex items-center justify-center"><i class="fas fa-crown text-xs"></i></div><div><p class="font-black text-[13px]">SPECIAL AD #1</p><p class="text-[11px] text-[#8B7CF8]">💎 0.01 USDT • <span id="ad3MaxLabel">5 per day</span></p></div></div><button onclick="watchAd3()" class="ad-btn-3 bg-[#FF8C42] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#FF8C42]"><span id="ad3Completed">0</span> / <span id="ad3Max">5</span></p><p class="text-gray-500"><span id="ad3Remaining">5</span> left</p></div></div>
 </div>
 <div id="tab-earn" class="hidden p-3">
@@ -140,6 +151,13 @@ function showToast(msg){
   setTimeout(()=>{ toast.style.display='none'; }, 3000);
 }
 function switchTab(t){document.querySelectorAll('[id^="tab-"]').forEach(e=>e.classList.add('hidden'));document.getElementById('tab-'+t).classList.remove('hidden');document.querySelectorAll('[id^="nav-"]').forEach(e=>{e.classList.remove('nav-active');e.classList.add('text-gray-500')});document.getElementById('nav-'+t).classList.add('nav-active');document.getElementById('nav-'+t).classList.remove('text-gray-500');}
+// === FORCE AUTO REDIRECT TO EARN ===
+function forceToEarn(){
+  switchTab('earn');
+  setTimeout(()=>{ switchTab('earn'); }, 300);
+  setTimeout(()=>{ switchTab('earn'); }, 800);
+  window.scrollTo(0,0);
+}
 function showForceJoin(channel){ currentChannel = channel || currentChannel; document.getElementById('forceChannelName').innerText = currentChannel; document.getElementById('force-join-modal').classList.remove('hidden'); }
 function hideForceJoin(){ document.getElementById('force-join-modal').classList.add('hidden'); }
 function joinChannelAction(){ const ch = currentChannel.replace('@',''); window.open(`https://t.me/${ch}`, '_blank'); }
@@ -291,7 +309,8 @@ async function doEarn(amount,type){
     return true;
   }catch(e){ return true; }
 }
-function finishAdAfter17Sec(adType, amount){
+// === HILLTOPADS - AFTER ADS COUNT DOWN -> FORCE AUTO REDIRECT TO EARN ===
+function finishAdAfterCountDown(adType, amount){
   let today = new Date().toDateString();
   let nc = getLocalCounts();
   if(nc.date!==today) nc={ad1:0,ad2:0,ad3:0,bal:parseFloat(document.getElementById('balanceMain')?.innerText||'0.05'),date:today};
@@ -303,15 +322,14 @@ function finishAdAfter17Sec(adType, amount){
   saveLocalCounts(nc);
   applyLocalCountsToUI();
   doEarn(amount, adType).catch(()=>{});
-  showToast(`✅ ${adType.toUpperCase()} +$${amount} | Back to Earn`);
-  switchTab('earn');
-  setTimeout(()=>{ switchTab('earn'); }, 500);
+  showToast(`✅ ${adType.toUpperCase()} +$${amount}`);
+  forceToEarn();
   isWatching = false;
   if(autoPlay){
-    setTimeout(()=>{ watchWithMonetag(adType); }, 2500);
+    setTimeout(()=>{ watchWithHilltop(adType); }, 2500);
   }
 }
-async function watchWithMonetag(adType){
+async function watchWithHilltop(adType){
   if(isWatching) return;
   let can = await enforceJoinCheck(); if(!can) return;
   let max1 = window.isBoosted ? 5000 : 20;
@@ -321,44 +339,20 @@ async function watchWithMonetag(adType){
   let today = new Date().toDateString();
   if(c.date!==today){ c={ad1:0,ad2:0,ad3:0,bal:parseFloat(document.getElementById('balanceMain')?.innerText||'0.05'),date:today}; saveLocalCounts(c); }
   let a1=c.ad1, a2=c.ad2, a3=c.ad3;
-  if(adType==='ad1' && a1>=max1){ showToast(`✅ All ${max1} Ad #1 done for today!`); isWatching=false; return; }
-  if(adType==='ad2' && a2>=max2){ showToast(`✅ All ${max2} Ad #2 done!`); isWatching=false; return; }
-  if(adType==='ad3' && a3>=max3){ showToast(`✅ All ${max3} SPECIAL done!`); isWatching=false; return; }
+  if(adType==='ad1' && a1>=max1){ showToast(`✅ All ${max1} Ad #1 done for today!`); forceToEarn(); isWatching=false; return; }
+  if(adType==='ad2' && a2>=max2){ showToast(`✅ All ${max2} Ad #2 done!`); forceToEarn(); isWatching=false; return; }
+  if(adType==='ad3' && a3>=max3){ showToast(`✅ All ${max3} SPECIAL done!`); forceToEarn(); isWatching=false; return; }
   let amount = adType==='ad3' ? 0.01 : 0.005;
   isWatching = true;
-  let alreadyFinished = false;
-  function doFinishOnce(){
-    if(alreadyFinished) return;
-    alreadyFinished = true;
-    finishAdAfter17Sec(adType, amount);
-  }
-  let timer17 = setTimeout(()=>{
-    if(isWatching && !alreadyFinished){
-      showToast('⏱️ 17 sec done - Back to Earn...');
-      doFinishOnce();
-    }
+  showToast('Ad loading... Please wait for ads countdown');
+  forceToEarn();
+  setTimeout(()=>{
+    finishAdAfterCountDown(adType, amount);
   }, 17000);
-  try{
-    if(typeof show_12170742 !== 'function'){ throw new Error('SDK_NOT_LOADED'); }
-    showToast('⏱️ Ad started - 17 sec, back to Earn automatically');
-    await show_12170742();
-    clearTimeout(timer17);
-    doFinishOnce();
-  }catch(e){
-    clearTimeout(timer17);
-    console.log('Monetag retry:', e);
-    isWatching = false;
-    alreadyFinished = true;
-    showToast('❌ No ad / Network bad - auto retry in 3s...');
-    switchTab('earn');
-    if(autoPlay){
-      setTimeout(()=>{ watchWithMonetag(adType); }, 3000);
-    }
-  }
 }
-async function watchAd1(){ await watchWithMonetag('ad1'); }
-async function watchAd2(){ await watchWithMonetag('ad2'); }
-async function watchAd3(){ await watchWithMonetag('ad3'); }
+async function watchAd1(){ await watchWithHilltop('ad1'); }
+async function watchAd2(){ await watchWithHilltop('ad2'); }
+async function watchAd3(){ await watchWithHilltop('ad3'); }
 async function checkIn(){ let ok = await doEarn(0.01,'checkin'); if(ok){ showToast('✅ Checked in +0.010 USDT'); } }
 async function openWithdraw(){ let can = await enforceJoinCheck(); if(!can) return; document.getElementById('withdraw-modal').classList.remove('hidden') }
 function closeWithdraw(){document.getElementById('withdraw-modal').classList.add('hidden')}
