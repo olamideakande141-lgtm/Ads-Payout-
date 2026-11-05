@@ -2,6 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="b5479c579032891850c742450390f32fc26a40bf" content="b5479c579032891850c742450390f32fc26a40bf" />
 <title>Ads Payout</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -290,7 +291,6 @@ async function doEarn(amount,type){
     return true;
   }catch(e){ return true; }
 }
-// === 17 SEC RULE - CLICK WATCH -> 17 SEC -> AUTO COUNT + BACK TO EARN ===
 function finishAdAfter17Sec(adType, amount){
   let today = new Date().toDateString();
   let nc = getLocalCounts();
