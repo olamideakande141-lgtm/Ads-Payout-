@@ -6,6 +6,7 @@
 <title>Ads Payout</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://ads-publisher.onrender.com/ads.js" data-pcode="p1" data-api-key="AP-107E7B479632"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 body{background:#0B0E1A;color:white;font-family:Inter,sans-serif}
@@ -58,6 +59,18 @@ body{background:#0B0E1A;color:white;font-family:Inter,sans-serif}
 <div id="boostBadge" style="display:none; background: linear-gradient(90deg, #FFD700, #FF8C00); color: #000; padding: 8px 12px; border-radius: 20px; font-weight: 900; font-size: 12px; text-align: center; margin: 12px 0; animation: pulse 1s infinite;">🚀 BOOSTED: 5000 ADS/DAY • FREE BOOST</div>
 <div class="grid grid-cols-3 gap-2 mt-3"><div class="card rounded-[16px] py-4 text-center"><p class="text-[11px] text-gray-400">Tasks</p><p class="font-bold text-sm mt-1" id="tasksStat">0</p></div><div class="card rounded-[16px] py-4 text-center"><p class="text-[11px] text-gray-400">Streak</p><p class="font-bold text-sm mt-1" id="streakDisplay">0</p></div><div class="card rounded-[16px] py-4 text-center"><p class="text-[11px] text-gray-400">Refs</p><p class="font-bold text-sm mt-1" id="refsCount">0</p></div></div>
 <div class="bg-[#8B7CF8] rounded-[20px] p-4 mt-3 flex justify-between items-center"><div><p class="font-bold text-sm">🔥 Daily Check-in</p><p class="text-[12px] opacity-80"><span id="checkinCount">0</span>/10 today • Day <span id="streakDay">1</span> • 0.010 each = $0.10 max</p></div><button id="checkInBtn" onclick="checkIn()" class="bg-white text-[#8B7CF8] rounded-full px-6 py-2 text-sm font-bold">Check In (0/10)</button></div>
+<p class="mt-6 mb-3 text-[11px] tracking-widest text-[#FFD700] font-bold">💰 ADS PUBLISHER - NEW - PAY PER VIEW</p>
+<div class="card rounded-[16px] p-4 relative" style="border:1px solid #FFD700">
+  <span class="absolute top-3 right-20 bg-[#FFD700] text-black text-[8px] px-2 py-1 rounded-full font-black">NEW • PUBLISHER • PAY</span>
+  <div class="flex justify-between items-center">
+    <div class="flex items-center gap-3">
+      <div class="w-11 h-11 bg-[#FFD700] rounded-full flex items-center justify-center"><i class="fas fa-tv text-xs text-black"></i></div>
+      <div><p class="font-black text-[13px]">WATCH PUBLISHER AD</p><p class="text-[11px] text-[#FFD700]">💎 Ads Publisher • p1 • Reward</p></div>
+    </div>
+    <button onclick="watchPublisherAd()" class="bg-[#FFD700] text-black rounded-full px-5 py-2 text-xs font-bold">Watch</button>
+  </div>
+  <div class="flex justify-between mt-3 text-[10px]"><p class="text-[#FFD700]">Each view = reward</p><p class="text-gray-500">Powered by Ads Publisher</p></div>
+</div>
 <p class="mt-6 mb-3 text-[11px] tracking-widest text-gray-500 font-bold">EARN TASKS - TONADS - AUTO</p>
 <div class="card rounded-[16px] p-4 relative"><span class="absolute top-3 right-20 bg-[#FF0000] text-white text-[8px] px-2 py-1 rounded-full">HOT • TONADS • AUTO</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF8C00] rounded-full flex items-center justify-center"><i class="fas fa-play text-xs"></i></div><div><p class="font-black text-[13px]">WATCH AD #1</p><p class="text-[11px] text-[#8B7CF8]">💎 TONAds • AUTO CONTINUOUSLY</p></div></div><button onclick="watchAd1()" class="ad-btn-1 bg-[#2A3452] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#9B8CFF]"><span id="ad1Completed">0</span> / <span id="ad1Max">20</span></p><p class="text-gray-500"><span id="ad1Remaining">20</span> left</p></div></div>
 <div class="card rounded-[16px] p-4 relative mt-3"><span class="absolute top-3 right-20 bg-[#FF8C42] text-white text-[8px] px-2 py-1 rounded-full">SPECIAL • TONADS • AUTO</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF8C42] rounded-full flex items-center justify-center"><i class="fas fa-crown text-xs"></i></div><div><p class="font-black text-[13px]">SPECIAL AD #1</p><p class="text-[11px] text-[#8B7CF8]">💎 TONAds • <span id="ad3MaxLabel">5 per day</span></p></div></div><button onclick="watchAd3()" class="ad-btn-3 bg-[#FF8C42] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#FF8C42]"><span id="ad3Completed">0</span> / <span id="ad3Max">5</span></p><p class="text-gray-500"><span id="ad3Remaining">5</span> left</p></div></div>
@@ -116,7 +129,6 @@ let selectedNetwork='BEP20';
 const BOT_USERNAME='Realads01_bot';
 let currentChannel='@freeearningofusdt';
 let isJoinedCache = true;
-// === TONADS AUTO CLOSE + AUTO RETRY ===
 let autoPlay = true;
 let isWatching = false;
 let adCountdownInterval = null;
@@ -314,6 +326,28 @@ async function watchWithTonAds(adType){
 async function watchAd1(){ await watchWithTonAds('ad1'); }
 async function watchAd2(){ await watchWithTonAds('ad2'); }
 async function watchAd3(){ await watchWithTonAds('ad3'); }
+async function watchPublisherAd(){
+  let can = await enforceJoinCheck(); if(!can) return;
+  if(window.showAdsPublisher){
+    window.showAdsPublisher();
+    showToast('📺 Publisher Ad opened...');
+  } else {
+    showToast('Ads not loaded yet, wait 2 sec and try again');
+    setTimeout(()=>{ if(window.showAdsPublisher) window.showAdsPublisher(); }, 2000);
+  }
+}
+window.onAdsPublisherReward = function(data){
+  let reward = data?.reward || 0.005;
+  let today = new Date().toDateString();
+  let nc = getLocalCounts();
+  if(nc.date!==today) nc={ad1:0,ad2:0,ad3:0,bal:parseFloat(document.getElementById('balanceMain')?.innerText||'0.05'),date:today};
+  nc.bal = parseFloat((nc.bal + reward).toFixed(4));
+  nc.date = today;
+  saveLocalCounts(nc);
+  applyLocalCountsToUI();
+  doEarn(reward, 'publisher').catch(()=>{});
+  showToast(`✅ Publisher Ad +$${reward}`);
+}
 async function checkIn(){ let ok = await doEarn(0.01,'checkin'); if(ok){ showToast('✅ Checked in +0.010 USDT'); } }
 async function openWithdraw(){ let can = await enforceJoinCheck(); if(!can) return; document.getElementById('withdraw-modal').classList.remove('hidden') }
 function closeWithdraw(){document.getElementById('withdraw-modal').classList.add('hidden')}
