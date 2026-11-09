@@ -6,6 +6,7 @@
 <title>Ads Payout</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://app.adsgalaxy.online/sdk.js?id=139"></script>
 <script src="https://ads-publisher.onrender.com/ads.js" data-pcode="p1" data-api-key="AP-107E7B479632"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
@@ -30,19 +31,18 @@ body{background:#0B0E1A;color:white;font-family:Inter,sans-serif}
 <body class="pb-24">
 <div id="pubOverlay"><div id="pubOverlayInner"></div></div>
 <div id="adOverlay">
-  <div id="adOverlayTop"><div id="adTimerPill">Opening TONAds...</div></div>
+  <div id="adOverlayTop"><div id="adTimerPill">Opening Ad...</div></div>
   <div id="adContent">
     <div id="adContentInner">
-      <p style="color:#111;font-weight:900;font-size:20px;line-height:1.3">⏳ TONAds Ad Running...</p>
-      <p style="color:#333;font-size:14px;margin-top:10px;line-height:1.6">Please wait.<br>TONAds don open.<br>E go auto close and auto retry.</p>
-      <div style="margin-top:16px;background:#f3f3f3;border-radius:12px;padding:14px;color:#666;font-size:13px">📺 TONAds is running...<br><span id="retryCountdown">Auto Close in 15 sec - Auto Retry in 5 sec</span></div>
-      <button onclick="openTonAdsApp()" style="margin-top:14px;background:#0088CC;color:white;border:0;padding:12px 24px;border-radius:20px;font-weight:800;font-size:13px">🚀 OPEN TONADS AGAIN</button>
+      <p style="color:#111;font-weight:900;font-size:20px;line-height:1.3">⏳ Ad Running...</p>
+      <p style="color:#333;font-size:14px;margin-top:10px;line-height:1.6">Please wait.<br>Ad don open.<br>E go auto close and auto retry.</p>
+      <div style="margin-top:16px;background:#f3f3f3;border-radius:12px;padding:14px;color:#666;font-size:13px">📺 Ad is running...<br><span id="retryCountdown">Auto Close in 15 sec - Auto Retry in 5 sec</span></div>
       <button onclick="stopAuto()" style="margin-top:10px;background:#FF0000;color:white;border:0;padding:10px 20px;border-radius:20px;font-weight:800;font-size:13px;display:block;margin-left:auto;margin-right:auto">⏹ STOP AUTO</button>
       <p style="color:#999;font-size:11px;text-align:right;margin-top:12px">Ad</p>
     </div>
   </div>
   <div id="adFooter">
-    <span id="adByLabel">ads by TONAds</span>
+    <span id="adByLabel">ads by AdsGalaxy</span>
     <p id="adAutoLabel">⏳ Auto Continuously - Auto Retry in 5 sec</p>
   </div>
 </div>
@@ -74,13 +74,13 @@ body{background:#0B0E1A;color:white;font-family:Inter,sans-serif}
   </div>
   <div class="flex justify-between mt-3 text-[10px]"><p class="text-[#FFD700]">Sponsored Ad</p><p class="text-gray-500">Powered by Ads Publisher</p></div>
 </div>
-<p class="mt-6 mb-3 text-[11px] tracking-widest text-gray-500 font-bold">EARN TASKS - TONADS - AUTO</p>
-<div class="card rounded-[16px] p-4 relative"><span class="absolute top-3 right-20 bg-[#FF0000] text-white text-[8px] px-2 py-1 rounded-full">HOT • TONADS • AUTO</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF8C00] rounded-full flex items-center justify-center"><i class="fas fa-play text-xs"></i></div><div><p class="font-black text-[13px]">WATCH AD #1</p><p class="text-[11px] text-[#8B7CF8]">💎 TONAds • AUTO CONTINUOUSLY</p></div></div><button onclick="watchAd1()" class="ad-btn-1 bg-[#2A3452] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#9B8CFF]"><span id="ad1Completed">0</span> / <span id="ad1Max">20</span></p><p class="text-gray-500"><span id="ad1Remaining">20</span> left</p></div></div>
+<p class="mt-6 mb-3 text-[11px] tracking-widest text-gray-500 font-bold">EARN TASKS - ADSGALAXY + TONADS - AUTO</p>
+<div class="card rounded-[16px] p-4 relative"><span class="absolute top-3 right-20 bg-[#FF0000] text-white text-[8px] px-2 py-1 rounded-full">HOT • GALAXY • AUTO</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF8C00] rounded-full flex items-center justify-center"><i class="fas fa-play text-xs"></i></div><div><p class="font-black text-[13px]">WATCH AD #1</p><p class="text-[11px] text-[#8B7CF8]">💎 AdsGalaxy • AUTO CONTINUOUSLY</p></div></div><button onclick="watchAd1()" class="ad-btn-1 bg-[#2A3452] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#9B8CFF]"><span id="ad1Completed">0</span> / <span id="ad1Max">20</span></p><p class="text-gray-500"><span id="ad1Remaining">20</span> left</p></div></div>
 <div class="card rounded-[16px] p-4 relative mt-3"><span class="absolute top-3 right-20 bg-[#FF8C42] text-white text-[8px] px-2 py-1 rounded-full">SPECIAL • TONADS • AUTO</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF8C42] rounded-full flex items-center justify-center"><i class="fas fa-crown text-xs"></i></div><div><p class="font-black text-[13px]">SPECIAL AD #1</p><p class="text-[11px] text-[#8B7CF8]">💎 TONAds • <span id="ad3MaxLabel">5 per day</span></p></div></div><button onclick="watchAd3()" class="ad-btn-3 bg-[#FF8C42] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#FF8C42]"><span id="ad3Completed">0</span> / <span id="ad3Max">5</span></p><p class="text-gray-500"><span id="ad3Remaining">5</span> left</p></div></div>
 </div>
 <div id="tab-earn" class="hidden p-3">
-<p class="mb-3 text-[11px] tracking-widest text-gray-500 font-bold">ADS - TONADS - AUTO CONTINUOUSLY - CLICK 1 TIME - AUTO RETRY IN 5 SEC</p>
-<div class="card rounded-[16px] p-4 relative"><span class="absolute top-3 right-20 bg-[#FF0000] text-white text-[8px] px-2 py-1 rounded-full">HOT • AUTO</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF8C00] rounded-full flex items-center justify-center"><i class="fas fa-play"></i></div><div><p class="font-black text-[13px]">WATCH AD #1</p><p class="text-[11px] text-[#8B7CF8]">💎 TONAds • AUTO • RETRY 5s</p></div></div><button onclick="watchAd1()" class="ad-btn-1 bg-[#2A3452] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#9B8CFF]"><span id="ad1Completed2">0</span> / <span id="ad1Max2">20</span></p><p class="text-gray-500"><span id="ad1Remaining2">20</span> left</p></div></div>
+<p class="mb-3 text-[11px] tracking-widest text-gray-500 font-bold">ADS - GALAXY + TONADS - AUTO CONTINUOUSLY - CLICK 1 TIME - AUTO RETRY IN 5 SEC</p>
+<div class="card rounded-[16px] p-4 relative"><span class="absolute top-3 right-20 bg-[#FF0000] text-white text-[8px] px-2 py-1 rounded-full">HOT • GALAXY • AUTO</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF8C00] rounded-full flex items-center justify-center"><i class="fas fa-play"></i></div><div><p class="font-black text-[13px]">WATCH AD #1</p><p class="text-[11px] text-[#8B7CF8]">💎 AdsGalaxy • AUTO • RETRY 5s</p></div></div><button onclick="watchAd1()" class="ad-btn-1 bg-[#2A3452] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#9B8CFF]"><span id="ad1Completed2">0</span> / <span id="ad1Max2">20</span></p><p class="text-gray-500"><span id="ad1Remaining2">20</span> left</p></div></div>
 <div class="card rounded-[16px] p-4 relative mt-3"><span class="absolute top-3 right-20 bg-[#FF0000] text-white text-[8px] px-2 py-1 rounded-full">HOT • AUTO</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF5E00] rounded-full flex items-center justify-center"><i class="fas fa-play"></i></div><div><p class="font-black text-[13px]">WATCH AD #2</p><p class="text-[11px] text-[#8B7CF8]">💎 TONAds • AUTO • RETRY 5s</p></div></div><button onclick="watchAd2()" class="ad-btn-2 bg-[#2A3452] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#9B8CFF]"><span id="ad2Completed">0</span> / <span id="ad2Max">15</span></p><p class="text-gray-500"><span id="ad2Remaining2">15</span> left</p></div></div>
 <div class="card rounded-[16px] p-4 relative mt-3"><span class="absolute top-3 right-20 bg-[#FF8C42] text-white text-[8px] px-2 py-1 rounded-full" id="ad3Badge">SPECIAL 5/DAY</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF8C42] rounded-full flex items-center justify-center"><i class="fas fa-crown"></i></div><div><p class="font-black text-[13px]">SPECIAL AD #1</p><p class="text-[11px] text-[#8B7CF8]">💎 TONAds • AUTO • RETRY 5s</p></div></div><button onclick="watchAd3()" class="ad-btn-3 bg-[#FF8C42] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#FF8C42]"><span id="ad3Completed2">0</span> / <span id="ad3Max2">5</span></p><p class="text-gray-500"><span id="ad3Remaining2">5</span> left</p></div></div>
 <p class="mt-6 mb-3 text-[11px] tracking-widest text-[#00D492] font-bold">🔥 CUSTOM TASK</p>
@@ -118,7 +118,7 @@ body{background:#0B0E1A;color:white;font-family:Inter,sans-serif}
 <button onclick="switchTab('account')" id="nav-account" class="flex flex-col items-center text-[11px] text-gray-500 w-1/4"><i class="fas fa-user text-lg"></i><span class="mt-1">Account</span></button>
 </div>
 <script>
-const API=''; 
+const API='';
 const TONADS_LINK = 'https://t.me/tonads_bot/app?startapp=p421';
 let tg = window.Telegram?.WebApp;
 if(tg){ tg.expand(); tg.ready(); }
@@ -126,8 +126,8 @@ let tgUser = tg?.initDataUnsafe?.user;
 let tgUsername = tgUser?.username ? '@'+tgUser.username : '';
 let tgFirstName = tgUser?.first_name || '';
 let tgId = tgUser?.id ? String(tgUser.id) : '';
-let userId=tgId || localStorage.getItem('uid')||'user_'+Math.random().toString(36).substr(2,9); 
-localStorage.setItem('uid',userId); 
+let userId=tgId || localStorage.getItem('uid')||'user_'+Math.random().toString(36).substr(2,9);
+localStorage.setItem('uid',userId);
 let selectedNetwork='BEP20';
 const BOT_USERNAME='Realads01_bot';
 let currentChannel='@freeearningofusdt';
@@ -153,7 +153,7 @@ function startRetryCountdown(adType, msg){
     document.getElementById('adTimerPill').innerText = 'Auto Retry in ' + sec + ' sec...';
     document.getElementById('adAutoLabel').innerText = '⏳ Auto Retry in ' + sec + ' sec...';
     if(rc) rc.innerText = msg + ' - Auto Retry in ' + sec + ' sec';
-    if(sec<=0){ clearInterval(retryTimer); closeOverlay(); if(autoPlay) watchWithTonAds(adType); }
+    if(sec<=0){ clearInterval(retryTimer); closeOverlay(); if(autoPlay){ if(adType==='ad1') watchAd1(); else watchWithTonAds(adType); } }
   }, 1000);
 }
 function startAutoCloseCountdown(adType){
@@ -200,7 +200,7 @@ async function checkJoinStatus(){ try{ let res = await fetch(`${API}/api/check-j
 async function enforceJoinCheck(){ try{ let res = await fetch(`${API}/api/check-join?userId=${userId}`); let d = await res.json(); currentChannel = d.channel || currentChannel; if(!d.joined){ isJoinedCache = false; showForceJoin(d.channel); return false; } else { isJoinedCache = true; hideForceJoin(); return true; } }catch(e){ return true; } }
 async function loadUser(){
 try{
-let res=await fetch(`${API}/api/user?userId=${userId}&username=${encodeURIComponent(tgUsername)}&firstName=${encodeURIComponent(tgFirstName)}`); 
+let res=await fetch(`${API}/api/user?userId=${userId}&username=${encodeURIComponent(tgUsername)}&firstName=${encodeURIComponent(tgFirstName)}`);
 let d=await res.json();
 let bal=d.balance||0.05;
 window.isBoosted = d.isBoosted || false;
@@ -263,7 +263,7 @@ async function doCustomTask(taskId, link, btnElement){
   setTimeout(async ()=>{
     let res = await fetch(`${API}/api/tasks/complete`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId, taskId})});
     let d = await res.json();
-    if(d.ok){ 
+    if(d.ok){
       const card = document.getElementById(`task-${taskId}`);
       if(card){ card.style.transform = 'translateX(100%) scale(0.8)'; card.style.opacity = '0'; setTimeout(()=> { card.remove(); const container = document.getElementById('customTasks'); if(container.children.length === 0){ container.innerHTML = `<div class="text-center py-6 text-[11px] text-gray-500">No tasks available. Check back later!</div>`; } document.getElementById('tasksStat').innerText = container.children.length; }, 500); }
       showToast(`✅ +$${d.reward} credited!`);
@@ -326,7 +326,45 @@ async function watchWithTonAds(adType){
   openTonAdsApp();
   startAutoCloseCountdown(adType);
 }
-async function watchAd1(){ await watchWithTonAds('ad1'); }
+// ===== ADSGALAXY - AD #1 ONLY =====
+async function watchAd1(){
+  if(isWatching) return;
+  let can = await enforceJoinCheck(); if(!can) return;
+  let max1 = window.isBoosted ? 5000 : 20;
+  let c = getLocalCounts();
+  let today = new Date().toDateString();
+  if(c.date!==today){ c={ad1:0,ad2:0,ad3:0,bal:parseFloat(document.getElementById('balanceMain')?.innerText||'0.05'),date:today}; saveLocalCounts(c); }
+  if(c.ad1>=max1){ showToast(`✅ All ${max1} Ad #1 done!`); forceToEarn(); isWatching=false; return; }
+  autoPlay = true; currentAdType = 'ad1'; isWatching = true;
+  // If SDK no load, fallback to TONAds
+  if(typeof window.showAdsGalaxy !== 'function'){
+    showToast('⚠️ Galaxy no load, using TONAds...');
+    isWatching = false;
+    await watchWithTonAds('ad1');
+    return;
+  }
+  try{
+    let result = await window.showAdsGalaxy();
+    // result = {event_id, request_id, mini_app_id, user_id, status, completed_at}
+    console.log('AdsGalaxy result:', result);
+    // Send request_id to backend for verification - DO NOT trust frontend alone
+    try{
+      await fetch(`${API}/api/verify-galaxy`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId, adType:'ad1', request_id: result?.request_id, event_id: result?.event_id, status: result?.status})});
+    }catch(e){}
+    // Credit same as before
+    finishAdAfterCountDown('ad1', 0.005);
+  }catch(err){
+    console.log(err?.code, err?.message);
+    isWatching = false;
+    if(err?.code === 'NO_AD' || err?.code === 'AD_BLOCKED'){
+      showToast('❌ No Galaxy ad now, retry in 5s...');
+      if(autoPlay) startRetryCountdown('ad1', 'No ad - Retry');
+    } else {
+      showToast('❌ Ad failed, retrying...');
+      if(autoPlay) startRetryCountdown('ad1', 'Failed - Retry');
+    }
+  }
+}
 async function watchAd2(){ await watchWithTonAds('ad2'); }
 async function watchAd3(){ await watchWithTonAds('ad3'); }
 // ===== ADS PUBLISHER - TIMER + MANUAL X - NO REWARD FOR VIEWER, NO AUTO CLOSE =====
