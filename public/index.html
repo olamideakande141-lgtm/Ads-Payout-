@@ -24,7 +24,7 @@ body{background:#0B0E1A;color:white;font-family:Inter,sans-serif}
 #adByLabel{background:#A8C07A;color:white;font-size:12px;padding:6px 16px;border-radius:20px;display:inline-block}
 #adAutoLabel{color:#333;font-size:12px;margin-top:8px;font-weight:bold}
 #pubOverlay{position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:10000;display:none;align-items:center;justify-content:center;padding:16px}
-#pubOverlayInner{background:white;border-radius:16px;padding:20px;width:100%;max-width:400px;text-align:center;color:#111}
+#pubOverlayInner{background:white;border-radius:16px;padding:20px;width:100%;max-width:400px;text-align:center;color:#111;position:relative}
 </style>
 </head>
 <body class="pb-24">
@@ -68,11 +68,11 @@ body{background:#0B0E1A;color:white;font-family:Inter,sans-serif}
   <div class="flex justify-between items-center">
     <div class="flex items-center gap-3">
       <div class="w-11 h-11 bg-[#FFD700] rounded-full flex items-center justify-center"><i class="fas fa-tv text-xs text-black"></i></div>
-      <div><p class="font-black text-[13px]">WATCH PUBLISHER AD</p><p class="text-[11px] text-[#FFD700]">💎 Ads Publisher • p1 • Reward</p></div>
+      <div><p class="font-black text-[13px]">WATCH PUBLISHER AD</p><p class="text-[11px] text-[#FFD700]">💎 Ads Publisher • p1</p></div>
     </div>
     <button onclick="watchPublisherAd()" class="bg-[#FFD700] text-black rounded-full px-5 py-2 text-xs font-bold">Watch</button>
   </div>
-  <div class="flex justify-between mt-3 text-[10px]"><p class="text-[#FFD700]">Each view = reward</p><p class="text-gray-500">Powered by Ads Publisher</p></div>
+  <div class="flex justify-between mt-3 text-[10px]"><p class="text-[#FFD700]">Sponsored Ad</p><p class="text-gray-500">Powered by Ads Publisher</p></div>
 </div>
 <p class="mt-6 mb-3 text-[11px] tracking-widest text-gray-500 font-bold">EARN TASKS - TONADS - AUTO</p>
 <div class="card rounded-[16px] p-4 relative"><span class="absolute top-3 right-20 bg-[#FF0000] text-white text-[8px] px-2 py-1 rounded-full">HOT • TONADS • AUTO</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF8C00] rounded-full flex items-center justify-center"><i class="fas fa-play text-xs"></i></div><div><p class="font-black text-[13px]">WATCH AD #1</p><p class="text-[11px] text-[#8B7CF8]">💎 TONAds • AUTO CONTINUOUSLY</p></div></div><button onclick="watchAd1()" class="ad-btn-1 bg-[#2A3452] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#9B8CFF]"><span id="ad1Completed">0</span> / <span id="ad1Max">20</span></p><p class="text-gray-500"><span id="ad1Remaining">20</span> left</p></div></div>
@@ -81,7 +81,7 @@ body{background:#0B0E1A;color:white;font-family:Inter,sans-serif}
 <div id="tab-earn" class="hidden p-3">
 <p class="mb-3 text-[11px] tracking-widest text-gray-500 font-bold">ADS - TONADS - AUTO CONTINUOUSLY - CLICK 1 TIME - AUTO RETRY IN 5 SEC</p>
 <div class="card rounded-[16px] p-4 relative"><span class="absolute top-3 right-20 bg-[#FF0000] text-white text-[8px] px-2 py-1 rounded-full">HOT • AUTO</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF8C00] rounded-full flex items-center justify-center"><i class="fas fa-play"></i></div><div><p class="font-black text-[13px]">WATCH AD #1</p><p class="text-[11px] text-[#8B7CF8]">💎 TONAds • AUTO • RETRY 5s</p></div></div><button onclick="watchAd1()" class="ad-btn-1 bg-[#2A3452] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#9B8CFF]"><span id="ad1Completed2">0</span> / <span id="ad1Max2">20</span></p><p class="text-gray-500"><span id="ad1Remaining2">20</span> left</p></div></div>
-<div class="card rounded-[16px] p-4 relative mt-3"><span class="absolute top-3 right-20 bg-[#FF0000] text-white text-[8px] px-2 py-1 rounded-full">HOT • AUTO</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF5E00] rounded-full flex items-center justify-center"><i class="fas fa-play"></i></div><div><p class="font-black text-[13px]">WATCH AD #2</p><p class="text-[11px] text-[#8B7CF8]">💎 TONAds • AUTO • RETRY 5s</p></div></div><button onclick="watchAd2()" class="ad-btn-2 bg-[#2A3452] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#9B8CFF]"><span id="ad2Completed">0</span> / <span id="ad2Max">15</span></p><p class="text-gray-500"><span id="ad2Remaining">15</span> left</p></div></div>
+<div class="card rounded-[16px] p-4 relative mt-3"><span class="absolute top-3 right-20 bg-[#FF0000] text-white text-[8px] px-2 py-1 rounded-full">HOT • AUTO</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF5E00] rounded-full flex items-center justify-center"><i class="fas fa-play"></i></div><div><p class="font-black text-[13px]">WATCH AD #2</p><p class="text-[11px] text-[#8B7CF8]">💎 TONAds • AUTO • RETRY 5s</p></div></div><button onclick="watchAd2()" class="ad-btn-2 bg-[#2A3452] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#9B8CFF]"><span id="ad2Completed">0</span> / <span id="ad2Max">15</span></p><p class="text-gray-500"><span id="ad2Remaining2">15</span> left</p></div></div>
 <div class="card rounded-[16px] p-4 relative mt-3"><span class="absolute top-3 right-20 bg-[#FF8C42] text-white text-[8px] px-2 py-1 rounded-full" id="ad3Badge">SPECIAL 5/DAY</span><div class="flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-11 h-11 bg-[#FF8C42] rounded-full flex items-center justify-center"><i class="fas fa-crown"></i></div><div><p class="font-black text-[13px]">SPECIAL AD #1</p><p class="text-[11px] text-[#8B7CF8]">💎 TONAds • AUTO • RETRY 5s</p></div></div><button onclick="watchAd3()" class="ad-btn-3 bg-[#FF8C42] rounded-full px-5 py-2 text-xs font-bold">Watch</button></div><div class="flex justify-between mt-3 text-[10px]"><p class="text-[#FF8C42]"><span id="ad3Completed2">0</span> / <span id="ad3Max2">5</span></p><p class="text-gray-500"><span id="ad3Remaining2">5</span> left</p></div></div>
 <p class="mt-6 mb-3 text-[11px] tracking-widest text-[#00D492] font-bold">🔥 CUSTOM TASK</p>
 <div id="customTasks" class="space-y-3"><div class="text-center py-6 text-[11px] text-gray-500">Loading tasks...</div></div>
@@ -329,10 +329,13 @@ async function watchWithTonAds(adType){
 async function watchAd1(){ await watchWithTonAds('ad1'); }
 async function watchAd2(){ await watchWithTonAds('ad2'); }
 async function watchAd3(){ await watchWithTonAds('ad3'); }
-// ===== ADS PUBLISHER - DIRECT FETCH - NO DEPEND ON ads.js =====
+// ===== ADS PUBLISHER - TIMER + MANUAL X - NO REWARD FOR VIEWER, NO AUTO CLOSE =====
 const PUB_PCODE = 'p1';
 const PUB_API_KEY = 'AP-107E7B479632';
 const PUB_BASE = 'https://ads-publisher.onrender.com';
+let pubTimer = null;
+let pubCanClose = false;
+let pubCurrentAdId = null;
 async function watchPublisherAd(){
   let can = await enforceJoinCheck(); if(!can) return;
   showToast('📺 Loading Publisher Ad...');
@@ -344,47 +347,54 @@ async function watchPublisherAd(){
     if(j.error){ showToast('❌ '+j.error); return; }
     if(!Array.isArray(j) || !j.length){ showToast('❌ No ads available now'); return; }
     let ad = j[0];
+    pubCurrentAdId = ad.id;
+    pubCanClose = false;
+    if(pubTimer) clearInterval(pubTimer);
     let inner = document.getElementById('pubOverlayInner');
     let img = '';
     if(ad.media_path) img = '<img src="'+PUB_BASE+ad.media_path+'" style="width:100%;border-radius:12px;max-height:220px;object-fit:cover;margin-top:10px"/>';
     else if(ad.media_url) img = '<img src="'+(ad.media_url.startsWith('http')?ad.media_url:PUB_BASE+ad.media_url)+'" style="width:100%;border-radius:12px;max-height:220px;object-fit:cover;margin-top:10px"/>';
-    inner.innerHTML = '<h3 style="font-weight:900;font-size:18px;color:#111">'+(ad.title||'Sponsored Ad')+'</h3>'
+    inner.innerHTML = '<button id="pubCloseX" disabled style="position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:50%;border:0;background:#eee;color:#999;font-size:16px;font-weight:900;cursor:not-allowed">✕</button>'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;padding-right:36px"><span style="background:#111;color:#fff;font-size:11px;padding:5px 10px;border-radius:20px;font-weight:700">Sponsored</span><span id="pubTimerPill" style="background:#FFD700;color:#000;font-size:12px;padding:5px 12px;border-radius:20px;font-weight:900">Ad ends in 15s</span></div>'
+      + '<div style="background:#eee;height:6px;border-radius:10px;margin:12px 0;overflow:hidden"><div id="pubProgressBar" style="background:#FFD700;height:100%;width:0%;transition:width 1s linear"></div></div>'
+      + '<h3 style="font-weight:900;font-size:18px;color:#111">'+(ad.title||'Sponsored Ad')+'</h3>'
       + '<p style="font-size:13px;color:#555;margin:10px 0">'+(ad.description||'')+'</p>'
       + img
       + '<a href="'+ad.destination_url+'" target="_blank" style="display:block;background:#FFD700;color:#000;padding:14px;border-radius:12px;font-weight:900;margin-top:14px;text-decoration:none">👉 VISIT AD</a>'
-      + '<button onclick="claimPublisherAd('+ad.id+')" style="margin-top:10px;background:#111;color:white;border:0;padding:12px 20px;border-radius:20px;font-weight:800;width:100%">Close & Claim +$0.005</button>'
-      + '<p style="font-size:11px;color:#999;margin-top:10px">Ads by Ads Publisher • p1</p>';
+      + '<p style="font-size:11px;color:#999;margin-top:10px">Ads by Ads Publisher</p>';
     document.getElementById('pubOverlay').style.display='flex';
+    let closeX = document.getElementById('pubCloseX');
+    closeX.onclick = function(){ closePublisherAd(); };
+    let remaining = 15;
+    let timerPill = document.getElementById('pubTimerPill');
+    let progressBar = document.getElementById('pubProgressBar');
+    pubTimer = setInterval(function(){
+      remaining--;
+      let elapsed = 15 - remaining;
+      let pct = Math.floor((elapsed/15)*100);
+      if(progressBar) progressBar.style.width = pct + '%';
+      if(remaining > 0){
+        if(timerPill) timerPill.innerText = 'Ad ends in ' + remaining + 's';
+      } else {
+        clearInterval(pubTimer);
+        if(progressBar) progressBar.style.width = '100%';
+        if(timerPill){ timerPill.innerText = 'You can close now'; timerPill.style.background = '#22c55e'; timerPill.style.color = '#fff'; }
+        pubCanClose = true;
+        if(closeX){ closeX.disabled = false; closeX.style.background = '#111'; closeX.style.color = '#fff'; closeX.style.cursor = 'pointer'; }
+      }
+    }, 1000);
   }catch(e){ showToast('❌ Network error: '+e.message); }
 }
-async function claimPublisherAd(adId){
+async function closePublisherAd(){
+  if(!pubCanClose) return;
+  if(pubTimer) clearInterval(pubTimer);
   document.getElementById('pubOverlay').style.display='none';
-  let reward = 0.005;
   try{
-    await fetch(PUB_BASE + '/api/publisher/view',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pcode:PUB_PCODE,api_key:PUB_API_KEY,ad_id:adId,viewer_id:userId})});
+    await fetch(PUB_BASE + '/api/publisher/view',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pcode:PUB_PCODE,api_key:PUB_API_KEY,ad_id:pubCurrentAdId,viewer_id:userId})});
   }catch(e){}
-  let today = new Date().toDateString();
-  let nc = getLocalCounts();
-  if(nc.date!==today) nc={ad1:0,ad2:0,ad3:0,bal:parseFloat(document.getElementById('balanceMain')?.innerText||'0.05'),date:today};
-  nc.bal = parseFloat((nc.bal + reward).toFixed(4));
-  nc.date = today;
-  saveLocalCounts(nc);
-  applyLocalCountsToUI();
-  doEarn(reward, 'publisher').catch(()=>{});
-  showToast('✅ Publisher Ad +$'+reward);
+  showToast('✅ Ad closed');
 }
-window.onAdsPublisherReward = function(data){
-  let reward = data?.reward || 0.005;
-  let today = new Date().toDateString();
-  let nc = getLocalCounts();
-  if(nc.date!==today) nc={ad1:0,ad2:0,ad3:0,bal:parseFloat(document.getElementById('balanceMain')?.innerText||'0.05'),date:today};
-  nc.bal = parseFloat((nc.bal + reward).toFixed(4));
-  nc.date = today;
-  saveLocalCounts(nc);
-  applyLocalCountsToUI();
-  doEarn(reward, 'publisher').catch(()=>{});
-  showToast(`✅ Publisher Ad +$${reward}`);
-}
+window.onAdsPublisherReward = function(data){ }
 async function checkIn(){ let ok = await doEarn(0.01,'checkin'); if(ok){ showToast('✅ Checked in +0.010 USDT'); } }
 async function openWithdraw(){ let can = await enforceJoinCheck(); if(!can) return; document.getElementById('withdraw-modal').classList.remove('hidden') }
 function closeWithdraw(){document.getElementById('withdraw-modal').classList.add('hidden')}
