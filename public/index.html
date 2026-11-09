@@ -142,16 +142,23 @@ function stopAuto(){ autoPlay=false; isWatching=false; clearInterval(retryTimer)
 function openTonAdsApp(){ if(tg && tg.openTelegramLink){ tg.openTelegramLink(TONADS_LINK); } else { window.open(TONADS_LINK, '_blank'); } }
 function startRetryCountdown(adType, msg){
   let sec = 5;
-  document.getElementById('adOverlay').style.display='flex';
-  document.getElementById('adTimerPill').innerText = 'Auto Retry in 5 sec...';
-  document.getElementById('adAutoLabel').innerText = '⏳ Auto Retry in 5 sec...';
+  // FIX: For Galaxy, DON'T show TONAds overlay - e go cover Galaxy ad
+  if(adType!=='ad1'){
+    document.getElementById('adOverlay').style.display='flex';
+    document.getElementById('adTimerPill').innerText = 'Auto Retry in 5 sec...';
+    document.getElementById('adAutoLabel').innerText = '⏳ Auto Retry in 5 sec...';
+  } else {
+    closeOverlay();
+  }
   let rc = document.getElementById('retryCountdown');
   if(rc) rc.innerText = msg + ' - Auto Retry in 5 sec';
   clearInterval(retryTimer);
   retryTimer = setInterval(()=>{
     sec--;
-    document.getElementById('adTimerPill').innerText = 'Auto Retry in ' + sec + ' sec...';
-    document.getElementById('adAutoLabel').innerText = '⏳ Auto Retry in ' + sec + ' sec...';
+    if(adType!=='ad1'){
+      document.getElementById('adTimerPill').innerText = 'Auto Retry in ' + sec + ' sec...';
+      document.getElementById('adAutoLabel').innerText = '⏳ Auto Retry in ' + sec + ' sec...';
+    }
     if(rc) rc.innerText = msg + ' - Auto Retry in ' + sec + ' sec';
     if(sec<=0){ clearInterval(retryTimer); closeOverlay(); if(autoPlay){ if(adType==='ad1') watchAd1(); else watchWithTonAds(adType); } }
   }, 1000);
@@ -326,48 +333,68 @@ async function watchWithTonAds(adType){
   openTonAdsApp();
   startAutoCloseCountdown(adType);
 }
-// ===== ADSGALAXY - AD #1 ONLY =====
+// ===== ADSGALAXY - AD #1 ONLY - FIXED NO OVERLAY COVER =====
 async function watchAd1(){
-  if(isWatching) return;
+  if(isWatching){ showToast('⏳ Ad already running...'); return; }
   let can = await enforceJoinCheck(); if(!can) return;
   let max1 = window.isBoosted ? 5000 : 20;
   let c = getLocalCounts();
   let today = new Date().toDateString();
   if(c.date!==today){ c={ad1:0,ad2:0,ad3:0,bal:parseFloat(document.getElementById('balanceMain')?.innerText||'0.05'),date:today}; saveLocalCounts(c); }
-  if(c.ad1>=max1){ showToast(`✅ All ${max1} Ad #1 done!`); forceToEarn(); isWatching=false; return; }
-  autoPlay = true; currentAdType = 'ad1'; isWatching = true;
-  // If SDK no load, fallback to TONAds
+  if(c.ad1>=max1){ showToast(`✅ All ${max1} Ad #1 done!`); return; }
+  // DEBUG - show SDK status
+  showToast('SDK: ' + typeof window.showAdsGalaxy + ' | TG: ' + (tgUser ? 'yes' : 'no'));
   if(typeof window.showAdsGalaxy !== 'function'){
-    showToast('⚠️ Galaxy no load, using TONAds...');
-    isWatching = false;
-    await watchWithTonAds('ad1');
+    showToast('❌ Galaxy SDK no load! Check head script id=139 + Render redeploy');
     return;
   }
+  // CRITICAL: Hide ALL overlays before Galaxy opens
+  closeOverlay();
+  document.getElementById('pubOverlay').style.display='none';
+  clearInterval(retryTimer); clearInterval(adCountdownInterval);
+  autoPlay = true; currentAdType = 'ad1'; isWatching = true;
+  showToast('📺 Loading Galaxy Ad...');
   try{
     let result = await window.showAdsGalaxy();
-    // result = {event_id, request_id, mini_app_id, user_id, status, completed_at}
-    console.log('AdsGalaxy result:', result);
-    // Send request_id to backend for verification - DO NOT trust frontend alone
-    try{
-      await fetch(`${API}/api/verify-galaxy`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId, adType:'ad1', request_id: result?.request_id, event_id: result?.event_id, status: result?.status})});
-    }catch(e){}
-    // Credit same as before
-    finishAdAfterCountDown('ad1', 0.005);
-  }catch(err){
-    console.log(err?.code, err?.message);
+    console.log('Galaxy SUCCESS:', result);
     isWatching = false;
-    if(err?.code === 'NO_AD' || err?.code === 'AD_BLOCKED'){
-      showToast('❌ No Galaxy ad now, retry in 5s...');
-      if(autoPlay) startRetryCountdown('ad1', 'No ad - Retry');
-    } else {
-      showToast('❌ Ad failed, retrying...');
-      if(autoPlay) startRetryCountdown('ad1', 'Failed - Retry');
+    // Credit via server ONLY - no local fake credit
+    try{
+      let r = await fetch(`${API}/api/adsgalaxy-confirm`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId, adType:'ad1', request_id: result?.request_id, event_id: result?.event_id, status: result?.status})});
+      let d = await r.json();
+      console.log('Confirm:', d);
+      if(d.ok){
+        document.getElementById('balanceMain').innerText = d.balance.toFixed(4);
+        document.getElementById('balanceUSDT').innerText = d.balance.toFixed(4);
+        document.getElementById('balance2').innerText = d.balance.toFixed(4);
+        document.getElementById('balanceAccount').innerText = d.balance.toFixed(4);
+        // Sync local counts to server
+        let nc = getLocalCounts(); nc.ad1++; nc.bal = d.balance; nc.date = today; saveLocalCounts(nc); applyLocalCountsToUI();
+        showToast(`✅ AD #1 +$${d.reward} - Next in 5s...`);
+        if(autoPlay){ setTimeout(()=>{ if(autoPlay) watchAd1(); }, 5000); }
+      } else {
+        showToast('⚠️ ' + (d.msg || 'Already credited - Callback go credit'));
+        loadUser();
+      }
+    }catch(e){
+      console.log('Confirm error', e);
+      showToast('✅ Ad watched - Callback go credit');
+      loadUser();
+    }
+  }catch(err){
+    isWatching = false;
+    console.log('Galaxy FAILED:', err?.code, err?.message, err);
+    showToast('❌ Galaxy: ' + (err?.code || 'ERROR') + ' ' + (err?.message || ''));
+    if(err?.code === 'NO_AD' || err?.code === 'NO_FILL'){
+      showToast('❌ No advertiser now for NG. Try later. No auto spam.');
+    } else if(err?.message && err.message.includes('Telegram')){
+      showToast('❌ Open inside Telegram Bot, no be Chrome');
     }
   }
 }
 async function watchAd2(){ await watchWithTonAds('ad2'); }
 async function watchAd3(){ await watchWithTonAds('ad3'); }
-// ===== ADS PUBLISHER - TIMER + MANUAL X - NO REWARD FOR VIEWER, NO AUTO CLOSE =====
+// ===== ADS PUBLISHER - TIMER + MANUAL X =====
 const PUB_PCODE = 'p1';
 const PUB_API_KEY = 'AP-107E7B479632';
 const PUB_BASE = 'https://ads-publisher.onrender.com';
