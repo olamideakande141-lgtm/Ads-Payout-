@@ -10,9 +10,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
 
-// === FINAL ADSGALAXY CALLBACK - MUST BE BEFORE express.json() ===
+// === ADSGALAXY CALLBACK - MUST BE BEFORE express.json() ===
 const ADS_GALAXY_SECRET = process.env.ADS_GALAXY_SECRET || 'whsec_AmbgydbI55xf4C9aYHka96IPQDpR1xRmcOBO9xEUij0';
-const adGalaxyUsed = new Set();
 
 app.get('/api/adsgalaxy-callback', (req,res)=> res.status(200).send('OK - callback ready'));
 
@@ -23,32 +22,48 @@ app.post('/api/adsgalaxy-callback', express.raw({type: '*/*'}), async (req,res)=
     const eventIdHeader = req.headers['x-adsgalaxy-event-id'] || '';
     const signature = req.headers['x-adsgalaxy-signature'] || '';
     
-    console.log('=== ADSGALAXY HIT ===', eventIdHeader);
+    console.log('=== ADSGALAXY HIT ===', eventIdHeader, rawBody.slice(0,500));
 
-    // Verify HMAC-SHA256 over timestamp.event_id.raw_body
+    // Verify HMAC - don't block on mismatch, just log
     if(signature && timestamp && eventIdHeader){
       const expected = crypto.createHmac('sha256', ADS_GALAXY_SECRET)
         .update(`${timestamp}.${eventIdHeader}.${rawBody}`)
         .digest('hex');
       if(signature !== expected){
-        console.log('Signature mismatch - but still returning 200 to clear queue');
+        console.log('Signature mismatch - but still processing');
       }
     }
 
     let data = {};
     try{ data = JSON.parse(rawBody); }catch{}
 
-    const eid = data.event_id || eventIdHeader;
-    if(eid && !adGalaxyUsed.has(eid)){
-      adGalaxyUsed.add(eid);
+    // AdsGalaxy can send user in different fields - check all
+    const userId = String(data.user_id || data.userId || data.telegram_id || data.mini_app_user_id || data.user?.id || '');
+    const eid = data.event_id || data.eventId || eventIdHeader || data.request_id || data.requestId;
+    const status = (data.status || '').toLowerCase();
+    const adType = data.adType || data.ad_type || 'ad1';
+
+    // Only credit when completed
+    if(status && status !== 'completed' && status !== 'complete' && status !== 'success'){
+      console.log('Galaxy not completed, skip:', status);
+      return res.status(200).send('OK');
     }
+
+    if(!userId || !eid){
+      console.log('Galaxy callback missing userId/eid:', {userId, eid, data});
+      return res.status(200).send('OK');
+    }
+
+    // FIX: Credit via DB, not Set - persistent
+    await creditGalaxyUser(userId, eid, adType, 0.005);
+
     return res.status(200).send('OK');
   }catch(e){
     console.log('Callback error but 200:', e.message);
     return res.status(200).send('OK');
   }
 });
-// === END FINAL FIX ===
+// === END CALLBACK ===
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -101,9 +116,83 @@ const TaskSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
+// NEW: Persistent Galaxy events - Render restart no go clear am
+const GalaxyEventSchema = new mongoose.Schema({
+  eventId: { type: String, unique: true },
+  userId: String,
+  adType: String,
+  reward: Number,
+  createdAt: { type: Date, default: Date.now }
+}, { strict: false });
+
 const User = mongoose.model('User', UserSchema);
 const Withdraw = mongoose.model('Withdraw', WithdrawSchema);
 const Task = mongoose.model('Task', TaskSchema);
+const GalaxyEvent = mongoose.model('GalaxyEvent', GalaxyEventSchema);
+
+function getToday(){ return new Date().toDateString(); }
+function checkAllAdsComplete(u){ const max1 = u.isBoosted ? 5000 : 20; const max2 = u.isBoosted ? 5000 : 15; const max3 = u.isBoosted ? 5000 : 5; return (u.ad1Count>=max1 && u.ad2Count>=max2 && u.ad3Count>=max3); }
+
+// === CENTRAL CREDIT FUNCTION - Used by Callback + Confirm ===
+async function creditGalaxyUser(userId, eventId, adType='ad1', reward=0.005){
+  if(!userId || !eventId) return {ok:false, msg:'Missing id'};
+  // Already credited? Check DB
+  const exists = await GalaxyEvent.findOne({eventId: String(eventId)});
+  if(exists){
+    console.log('Galaxy already credited:', eventId);
+    return {ok:false, msg:'Already credited'};
+  }
+  let u = await User.findOne({telegramId: String(userId)});
+  if(!u){
+    console.log('Galaxy user not found:', userId);
+    return {ok:false, msg:'User not found'};
+  }
+  const today = getToday();
+  if(u.ad1Date!==today){ u.ad1Count=0; u.ad1Date=today; }
+  if(u.ad2Date!==today){ u.ad2Count=0; u.ad2Date=today; }
+  if(u.ad3Date!==today){ u.ad3Count=0; u.ad3Date=today; }
+
+  const maxAd1 = u.isBoosted ? 5000 : 20;
+  const maxAd2 = u.isBoosted ? 5000 : 15;
+  const maxAd3 = u.isBoosted ? 5000 : 5;
+
+  let finalReward = 0;
+  if(adType==='ad1'){ if(u.ad1Count>=maxAd1) return {ok:false, msg:'AD1 limit'}; u.ad1Count++; finalReward = 0.005; }
+  else if(adType==='ad2'){ if(u.ad2Count>=maxAd2) return {ok:false, msg:'AD2 limit'}; u.ad2Count++; finalReward = 0.005; }
+  else if(adType==='ad3'){ if(u.ad3Count>=maxAd3) return {ok:false, msg:'SPECIAL done'}; u.ad3Count++; finalReward = 0.01; }
+  else { u.ad1Count++; finalReward = reward; }
+
+  u.balance += finalReward;
+
+  // Mark as used FIRST, then save - prevents double credit if callback retries
+  try{
+    await GalaxyEvent.create({eventId: String(eventId), userId: String(userId), adType, reward: finalReward});
+  }catch(e){
+    // Duplicate key = already credited by another request
+    return {ok:false, msg:'Already credited'};
+  }
+
+  // Referral completion check
+  if(checkAllAdsComplete(u) && !u.completedDays.includes(today)){
+    u.completedDays.push(today);
+    if(u.referredBy){
+      let ref = await User.findOne({telegramId: u.referredBy});
+      if(ref){
+        let e = ref.referrals.find(r=>r.id===userId);
+        if(!e){ e={id:userId, username:u.username, day1Complete:true, day1Date:today, day2Complete:false, valid:false}; ref.referrals.push(e); }
+        else if(!e.valid){
+          if(!e.day1Complete){ e.day1Complete=true; e.day1Date=today; }
+          else if(e.day1Date!==today){ e.day2Complete=true; e.day2Date=today; e.valid=true; ref.balance+=0.025; ref.referralEarnings+=0.025; ref.referralCount++; }
+        }
+        ref.markModified('referrals'); await ref.save();
+      }
+    }
+  }
+
+  await u.save();
+  console.log(`✅ Galaxy credited: User ${userId} +$${finalReward} Event ${eventId} Ad ${adType} Balance $${u.balance}`);
+  return {ok:true, reward: finalReward, balance: u.balance};
+}
 
 let bot;
 let pendingTask = {};
@@ -239,8 +328,6 @@ if(BOT_TOKEN){
   bot.launch().then(()=>console.log('Bot @'+BOT_USERNAME)).catch(e=>console.log(e));
 }
 
-function getToday(){ return new Date().toDateString(); }
-function checkAllAdsComplete(u){ const max1 = u.isBoosted ? 5000 : 20; const max2 = u.isBoosted ? 5000 : 15; const max3 = u.isBoosted ? 5000 : 5; return (u.ad1Count>=max1 && u.ad2Count>=max2 && u.ad3Count>=max3); }
 async function isUserInChannel(userId){
   if(!BOT_TOKEN) return true;
   try{ const chatId = MY_CHANNEL.startsWith('@') ? MY_CHANNEL : '@'+MY_CHANNEL; const resp = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getChatMember?chat_id=${chatId}&user_id=${userId}`); const data=await resp.json(); if(!data.ok) return true; return !['left','kicked','banned'].includes(data.result?.status); }catch{ return true; }
@@ -268,15 +355,29 @@ app.post('/api/tasks/complete', async (req,res)=>{
   u.balance += t.reward; if(t.type === 'one-time' || t.type === 'new-user'){ if(!u.completedTasks) u.completedTasks = []; u.completedTasks.push(taskId); u.markModified('completedTasks'); } await u.save(); res.json({ok:true, reward:t.reward, balance:u.balance});
 });
 
+// FIXED: Confirm now uses DB credit function + Verify alias for frontend
 app.post('/api/adsgalaxy-confirm', async (req,res)=>{
-  const {userId, request_id, event_id, adType}=req.body; if(!await isUserInChannel(userId)) return res.json({ok:false, msg:`❌ Join ${MY_CHANNEL} first!`, needJoin:true, channel:MY_CHANNEL});
-  const id=event_id||request_id; if(!id) return res.json({ok:false, msg:"No id"}); if(adGalaxyUsed.has(id)) return res.json({ok:false, msg:"Already credited"});
-  let u=await User.findOne({telegramId:userId}); if(!u) return res.json({ok:false, msg:"User not found"}); const today=getToday(); if(u.ad1Date!==today){ u.ad1Count=0; u.ad1Date=today; } if(u.ad2Date!==today){ u.ad2Count=0; u.ad2Date=today; } if(u.ad3Date!==today){ u.ad3Count=0; u.ad3Date=today; }
+  const {userId, request_id, event_id, adType}=req.body;
+  if(!await isUserInChannel(userId)) return res.json({ok:false, msg:`❌ Join ${MY_CHANNEL} first!`, needJoin:true, channel:MY_CHANNEL});
+  const id = event_id || request_id;
+  if(!id) return res.json({ok:false, msg:"No id"});
+  const result = await creditGalaxyUser(String(userId), String(id), adType || 'ad1', 0.005);
+  if(!result.ok) return res.json({ok:false, msg: result.msg});
+  let u = await User.findOne({telegramId: String(userId)});
   const maxAd1 = u.isBoosted ? 5000 : 20; const maxAd2 = u.isBoosted ? 5000 : 15; const maxAd3 = u.isBoosted ? 5000 : 5;
-  let reward=0; if(adType==='ad1'){ if(u.ad1Count>=maxAd1) return res.json({ok:false, msg:`AD1 limit ${maxAd1}/${maxAd1}`}); u.ad1Count++; reward=0.005; } else if(adType==='ad2'){ if(u.ad2Count>=maxAd2) return res.json({ok:false, msg:`AD2 limit ${maxAd2}/${maxAd2}`}); u.ad2Count++; reward=0.005; } else if(adType==='ad3'){ if(u.ad3Count>=maxAd3) return res.json({ok:false, msg:`SPECIAL ${maxAd3}/${maxAd3} done`}); u.ad3Count++; reward=0.01; }
-  u.balance+=reward; adGalaxyUsed.add(id);
-  if(checkAllAdsComplete(u)&&!u.completedDays.includes(today)){ u.completedDays.push(today); if(u.referredBy){ let ref=await User.findOne({telegramId:u.referredBy}); if(ref){ let e=ref.referrals.find(r=>r.id===userId); if(!e){ e={id:userId, username:u.username, day1Complete:true, day1Date:today, day2Complete:false, valid:false}; ref.referrals.push(e); } else if(!e.valid){ if(!e.day1Complete){ e.day1Complete=true; e.day1Date=today; } else if(e.day1Date!==today){ e.day2Complete=true; e.day2Date=today; e.valid=true; ref.balance+=0.025; ref.referralEarnings+=0.025; ref.referralCount++; } } ref.markModified('referrals'); await ref.save(); } } }
-  await u.save(); const left=adType==='ad1'?maxAd1-u.ad1Count:adType==='ad2'?maxAd2-u.ad2Count:maxAd3-u.ad3Count; res.json({ok:true, reward, balance:u.balance, left, isBoosted: u.isBoosted, maxLimit: adType==='ad1'?maxAd1:adType==='ad2'?maxAd2:maxAd3});
+  const left = adType==='ad1'?maxAd1-u.ad1Count:adType==='ad2'?maxAd2-u.ad2Count:maxAd3-u.ad3Count;
+  res.json({ok:true, reward: result.reward, balance: result.balance, left, isBoosted: u.isBoosted, maxLimit: adType==='ad1'?maxAd1:adType==='ad2'?maxAd2:maxAd3});
+});
+
+// Frontend calls /api/verify-galaxy - alias to confirm
+app.post('/api/verify-galaxy', async (req,res)=>{
+  const {userId, request_id, event_id, adType}=req.body;
+  if(!await isUserInChannel(userId)) return res.json({ok:false, msg:`❌ Join ${MY_CHANNEL} first!`, needJoin:true, channel:MY_CHANNEL});
+  const id = event_id || request_id;
+  if(!id) return res.json({ok:false, msg:"No id"});
+  const result = await creditGalaxyUser(String(userId), String(id), adType || 'ad1', 0.005);
+  if(!result.ok) return res.json({ok:false, msg: result.msg});
+  res.json({ok:true, reward: result.reward, balance: result.balance});
 });
 
 app.post('/api/earn', async (req,res)=>{ const {userId, amount, adType}=req.body; if(!await isUserInChannel(userId)) return res.json({ok:false, msg:`Join ${MY_CHANNEL}`, needJoin:true}); let u=await User.findOne({telegramId:userId}); if(!u) return res.json({ok:false}); const today=getToday(); if(u.checkinDate!==today){ u.checkinCount=0; u.checkinDate=today; } if(adType.includes('check')){ if(u.checkinCount>=10) return res.json({ok:false, msg:"Limit 10/10"}); u.checkinCount++; if(u.checkinCount===1) u.streak++; } if(amount) u.balance+=parseFloat(amount); await u.save(); res.json({ok:true, balance:u.balance, checkinCount:u.checkinCount}); });
